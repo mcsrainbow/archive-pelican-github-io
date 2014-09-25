@@ -232,7 +232,11 @@ check_root
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
 &lt;p&gt;&lt;code&gt;$ sudo chmod +x /etc/init.d/mysql_3307&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;$ sudo /etc/init.d/mysql_3307 status&lt;/code&gt;&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">mcsrainbow</dc:creator><pubDate>Thu, 25 Sep 2014 18:18:00 +0800</pubDate><guid>tag:mcsrainbow.github.io,2014-09-25:articles/setup-a-new-mysql-service-on-port-3307-without-touching-existing-database.html</guid><category>MySQL</category></item><item><title>Create an Ansible Module and then use Module Provided Facts</title><link>http://mcsrainbow.github.io/articles/create-an-ansible-module-and-then-use-module-provided-facts.html</link><description>&lt;p&gt;Sometimes the default Ansible Facts are not enough.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;$ sudo /etc/init.d/mysql_3307 status&lt;/code&gt;&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">mcsrainbow</dc:creator><pubDate>Thu, 25 Sep 2014 18:18:00 +0800</pubDate><guid>tag:mcsrainbow.github.io,2014-09-25:articles/setup-a-new-mysql-service-on-port-3307-without-touching-existing-database.html</guid><category>MySQL</category></item><item><title>Create an Ansible Module and then use Module Provided Facts</title><link>http://mcsrainbow.github.io/articles/create-an-ansible-module-and-then-use-module-provided-facts.html</link><description>&lt;p&gt;Sometimes the default Ansible Facts are not enough.
+For example, Ansible doesn't provide "ansible_private_ipv4_address" which with private IP address.
+With it, we don't need to worry about which IP on which NIC should be used.
+But we can create an Ansible module and then use module provided 'Facts'&lt;/p&gt;
+&lt;p&gt;Sometimes the default Ansible Facts are not enough.&lt;/p&gt;
 &lt;p&gt;For example, Ansible doesn't provide "ansible_private_ipv4_address" which with private IP address.&lt;/p&gt;
 &lt;p&gt;With it, we don't need to worry about which IP on which NIC should be used.&lt;/p&gt;
 &lt;p&gt;But we can create an Ansible module and then use module provided 'Facts'&lt;/p&gt;
