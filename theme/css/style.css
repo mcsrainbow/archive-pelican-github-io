@@ -73,4 +73,7 @@ hr.gradient {
 	font-size: 80%;
 }
 
-body { background-color: #fffff9; }
+body { 
+    background-color: #fffff9; 
+    font-size: 1.2em;
+}
