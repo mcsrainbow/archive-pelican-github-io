@@ -171,7 +171,7 @@
 </pre></div>
 </td></tr></table>
 
-<p>root@idc-server1 ansible]# ansible-playbook -u root myfacts.yml -i hosts</p>
+<p>[root@idc-server1 ansible]# ansible-playbook -u root myfacts.yml -i hosts</p>
 <div class="highlight"><pre><span class="n">PLAY</span> <span class="p">[</span><span class="n">idc1</span><span class="o">-</span><span class="n">server2</span><span class="p">]</span> <span class="o">***************************************************************</span>
 
 <span class="n">GATHERING</span> <span class="n">FACTS</span> <span class="o">***************************************************************</span>
@@ -188,7 +188,7 @@
 </pre></div>
 
 
-<p>root@idc-server1 ansible]# ssh idc1-server2 'cat /tmp/myfacts.txt'</p>
+<p>[root@idc-server1 ansible]# ssh idc1-server2 'cat /tmp/myfacts.txt'</p>
 <div class="highlight"><pre><span class="n">ansible_private_ipv4_address</span> <span class="o">:</span> <span class="mf">172.16</span><span class="o">.</span><span class="mf">1.2</span>
 </pre></div>
 <p class="subheader">Category: <a href="http://mcsrainbow.github.io/category/linuxunix.html">Linux&Unix</a>
