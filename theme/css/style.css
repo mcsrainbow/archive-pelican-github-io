@@ -72,6 +72,7 @@ hr.gradient {
 	padding: 1em;
 	overflow: auto;
 	font-weight:normal;
+	font-size:small;
 }
 
 body { background-color: #fffff9; }
