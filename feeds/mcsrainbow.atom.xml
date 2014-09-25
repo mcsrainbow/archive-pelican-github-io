@@ -1,5 +1,238 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>HeyDevOps</title><link href="http://mcsrainbow.github.io/" rel="alternate"></link><link href="http://mcsrainbow.github.io/feeds/mcsrainbow.atom.xml" rel="self"></link><id>http://mcsrainbow.github.io/</id><updated>2014-09-25T16:47:00+08:00</updated><entry><title>Create an Ansible Module and then use Module Provided Facts</title><link href="http://mcsrainbow.github.io/articles/create-an-ansible-module-and-then-use-module-provided-facts.html" rel="alternate"></link><updated>2014-09-25T16:47:00+08:00</updated><author><name>mcsrainbow</name></author><id>tag:mcsrainbow.github.io,2014-09-25:articles/create-an-ansible-module-and-then-use-module-provided-facts.html</id><summary type="html">&lt;p&gt;Sometimes the default Ansible Facts are not enough.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>HeyDevOps</title><link href="http://mcsrainbow.github.io/" rel="alternate"></link><link href="http://mcsrainbow.github.io/feeds/mcsrainbow.atom.xml" rel="self"></link><id>http://mcsrainbow.github.io/</id><updated>2014-09-25T18:18:00+08:00</updated><entry><title>Setup a new MySQL Service on Port 3307 without touching existing database</title><link href="http://mcsrainbow.github.io/articles/setup-a-new-mysql-service-on-port-3307-without-touching-existing-database.html" rel="alternate"></link><updated>2014-09-25T18:18:00+08:00</updated><author><name>mcsrainbow</name></author><id>tag:mcsrainbow.github.io,2014-09-25:articles/setup-a-new-mysql-service-on-port-3307-without-touching-existing-database.html</id><summary type="html">&lt;p&gt;&lt;strong&gt;Create directories for MySQL_3307&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;$ sudo mkdir -p /opt/mysql_3307/{data,tmp,run,binlogs,log}&lt;/p&gt;
+&lt;p&gt;$ sudo chown mysql:mysql /opt/mysql_3307/{data,tmp,run,binlogs,log}&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Create configuration file for MySQL_3307&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;$ sudo vim /etc/my_3307.cnf&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[mysqld]&lt;/span&gt;
+&lt;span class="c1"&gt;# basic settings&lt;/span&gt;
+&lt;span class="na"&gt;datadir&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/opt/mysql_3307/data&lt;/span&gt;
+&lt;span class="na"&gt;tmpdir&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/opt/mysql_3307/tmp&lt;/span&gt;
+&lt;span class="na"&gt;socket&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/opt/mysql_3307/run/mysqld.sock&lt;/span&gt;
+&lt;span class="na"&gt;port&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;3307&lt;/span&gt;
+&lt;span class="na"&gt;pid-file&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/opt/mysql_3307/run/mysqld.pid&lt;/span&gt;
+
+&lt;span class="c1"&gt;# innodb settings&lt;/span&gt;
+&lt;span class="na"&gt;default-storage-engine&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;INNODB&lt;/span&gt;
+&lt;span class="na"&gt;innodb_file_per_table&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;1&lt;/span&gt;
+&lt;span class="na"&gt;log-bin&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/opt/mysql_3307/binlogs/bin-log-mysqld&lt;/span&gt;
+&lt;span class="na"&gt;log-bin-index&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/opt/mysql_3307/binlogs/bin-log-mysqld.index&lt;/span&gt;
+&lt;span class="na"&gt;innodb_data_home_dir&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/opt/mysql_3307/data&lt;/span&gt;
+&lt;span class="na"&gt;innodb_data_file_path&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;ibdata1:10M:autoextend&lt;/span&gt;
+&lt;span class="na"&gt;innodb_log_group_home_dir&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/opt/mysql_3307/data&lt;/span&gt;
+
+&lt;span class="c1"&gt;# server id&lt;/span&gt;
+&lt;span class="na"&gt;server-id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;33071&lt;/span&gt;
+
+&lt;span class="c1"&gt;# other settings&lt;/span&gt;
+&lt;span class="k"&gt;[mysqld_safe]&lt;/span&gt;
+&lt;span class="na"&gt;log-error&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/opt/mysql_3307/log/mysqld.log&lt;/span&gt;
+&lt;span class="na"&gt;pid-file&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/opt/mysql_3307/run/mysqld.pid&lt;/span&gt;
+&lt;span class="na"&gt;open-files-limit&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;8192&lt;/span&gt;
+
+&lt;span class="k"&gt;[mysqlhotcopy]&lt;/span&gt;
+&lt;span class="err"&gt;interactive-timeout&lt;/span&gt;
+
+&lt;span class="k"&gt;[client]&lt;/span&gt;
+&lt;span class="na"&gt;port&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;3307&lt;/span&gt;
+&lt;span class="na"&gt;socket&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;/opt/mysql_3307/run/mysqld.sock&lt;/span&gt;
+&lt;span class="na"&gt;default-character-set&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;utf8&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;strong&gt;Initialize MySQL_3307&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;$ sudo -i&lt;/p&gt;
+&lt;p&gt;# su - mysql&lt;/p&gt;
+&lt;p&gt;$ mysql_install_db --user=mysql --datadir=/opt/mysql_3307/data/ --defaults-file=/etc/my_3307.cnf&lt;/p&gt;
+&lt;p&gt;$ exit&lt;/p&gt;
+&lt;p&gt;# exit&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Start MySQL_3307&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;$ sudo mysqld_safe --defaults-file=/etc/my_3307.cnf --user=mysql &amp;gt;/dev/null 2&amp;gt;&amp;amp;1 &amp;amp;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Stop MySQL_3307&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;$ sudo pkill -kill -f "/etc/my_3307.cnf"&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Connect to MySQL_3307&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Must use mysql_3307 to connect MySQL_3307 if you use mysql client on local.&lt;/p&gt;
+&lt;p&gt;Because "-P 3307" and "--port=3307" not work, mysql client will still connect the default port 3306.&lt;/p&gt;
+&lt;p&gt;Have to connect via socket file.&lt;/p&gt;
+&lt;p&gt;On other servers, it's ok. I searched on Google, this might be a bug.&lt;/p&gt;
+&lt;p&gt;$ alias mysql_3307='mysql -S /opt/mysql_3307/run/mysqld.sock'&lt;/p&gt;
+&lt;p&gt;$ mysql_3307 -uroot -p&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Create service script for MySQL_3307&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;$ sudo vim /etc/init.d/mysql_3307&lt;/p&gt;
+&lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85&lt;/pre&gt;&lt;/div&gt;&lt;/td&gt;&lt;td class="code"&gt;&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="c"&gt;#!/bin/sh&lt;/span&gt;
+&lt;span class="c"&gt;#&lt;/span&gt;
+&lt;span class="c"&gt;# MySQL daemon on Port 3307 start/stop/status script.&lt;/span&gt;
+&lt;span class="c"&gt;# by Dong Guo at 2014-03-19&lt;/span&gt;
+&lt;span class="c"&gt;#&lt;/span&gt;
+
+&lt;span class="nv"&gt;CONF&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;/etc/my_3307.cnf&amp;quot;&lt;/span&gt;
+&lt;span class="nv"&gt;PIDFILE&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;/opt/mysql_3307/run/mysqld.pid&amp;quot;&lt;/span&gt;
+
+&lt;span class="k"&gt;function &lt;/span&gt;check_root&lt;span class="o"&gt;(){&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="nv"&gt;$EUID&lt;/span&gt; -ne 0 &lt;span class="o"&gt;]&lt;/span&gt;; &lt;span class="k"&gt;then&lt;/span&gt;
+&lt;span class="k"&gt;        &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;This script must be run as root&amp;quot;&lt;/span&gt; 1&amp;gt;&amp;amp;2
+        &lt;span class="nb"&gt;exit &lt;/span&gt;1
+    &lt;span class="k"&gt;fi&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+status&lt;span class="o"&gt;(){&lt;/span&gt;
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; -s &lt;span class="s2"&gt;&amp;quot;${PIDFILE}&amp;quot;&lt;/span&gt;; &lt;span class="k"&gt;then&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;&lt;span class="nb"&gt;read &lt;/span&gt;mysqld_pid &amp;lt; &lt;span class="s2"&gt;&amp;quot;${PIDFILE}&amp;quot;&lt;/span&gt;
+    &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="nb"&gt;kill&lt;/span&gt; -0 &lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;mysqld_pid&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt; 2&amp;gt;/dev/null ; &lt;span class="k"&gt;then&lt;/span&gt;
+&lt;span class="k"&gt;      &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;MySQL (on Port 3307) running (${mysqld_pid})&amp;quot;&lt;/span&gt;
+      &lt;span class="nb"&gt;exit &lt;/span&gt;0
+    &lt;span class="k"&gt;else&lt;/span&gt;
+&lt;span class="k"&gt;      &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;MySQL (on Port 3307) is not running, but PID file exists&amp;quot;&lt;/span&gt;
+      &lt;span class="nb"&gt;exit &lt;/span&gt;1
+    &lt;span class="k"&gt;fi&lt;/span&gt;
+&lt;span class="k"&gt;  else&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;MySQL (on Port 3307) is not running&amp;quot;&lt;/span&gt;
+    &lt;span class="nb"&gt;exit &lt;/span&gt;2
+  &lt;span class="k"&gt;fi&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+start&lt;span class="o"&gt;(){&lt;/span&gt;
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; -s &lt;span class="s2"&gt;&amp;quot;${PIDFILE}&amp;quot;&lt;/span&gt;; &lt;span class="k"&gt;then&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;&lt;span class="nb"&gt;read &lt;/span&gt;mysqld_pid &amp;lt; &lt;span class="s2"&gt;&amp;quot;${PIDFILE}&amp;quot;&lt;/span&gt;
+    &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="nb"&gt;kill&lt;/span&gt; -0 &lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;mysqld_pid&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt; 2&amp;gt;/dev/null ; &lt;span class="k"&gt;then&lt;/span&gt;
+&lt;span class="k"&gt;      &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;MySQL (on Port 3307) is already running (${mysqld_pid})&amp;quot;&lt;/span&gt;
+      &lt;span class="nb"&gt;exit &lt;/span&gt;0
+    &lt;span class="k"&gt;else&lt;/span&gt;
+&lt;span class="k"&gt;      &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;MySQL (on Port 3307) is not running, but PID file exists&amp;quot;&lt;/span&gt;
+      &lt;span class="nb"&gt;exit &lt;/span&gt;1
+    &lt;span class="k"&gt;fi&lt;/span&gt;
+&lt;span class="k"&gt;  else&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Starting MySQL (on Port 3307)&amp;quot;&lt;/span&gt;
+    mysqld_safe --defaults-file&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;CONF&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt; --user&lt;span class="o"&gt;=&lt;/span&gt;mysql &amp;gt;/dev/null 2&amp;gt;&amp;amp;1 &amp;amp;
+  &lt;span class="k"&gt;fi&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+stop&lt;span class="o"&gt;(){&lt;/span&gt;
+  &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; -s &lt;span class="s2"&gt;&amp;quot;${PIDFILE}&amp;quot;&lt;/span&gt;; &lt;span class="k"&gt;then&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;&lt;span class="nb"&gt;read &lt;/span&gt;mysqld_pid &amp;lt; &lt;span class="s2"&gt;&amp;quot;${PIDFILE}&amp;quot;&lt;/span&gt;
+    &lt;span class="k"&gt;if &lt;/span&gt;&lt;span class="nb"&gt;kill&lt;/span&gt; -0 &lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;mysqld_pid&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt; 2&amp;gt;/dev/null ; &lt;span class="k"&gt;then&lt;/span&gt;
+&lt;span class="k"&gt;      &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Stopping MySQL (on Port 3307)&amp;quot;&lt;/span&gt;
+      &lt;span class="k"&gt;if &lt;/span&gt;pkill -kill -f &lt;span class="s2"&gt;&amp;quot;${CONF}&amp;quot;&lt;/span&gt; ; &lt;span class="k"&gt;then&lt;/span&gt;
+&lt;span class="k"&gt;        &lt;/span&gt;rm &lt;span class="k"&gt;${&lt;/span&gt;&lt;span class="nv"&gt;PIDFILE&lt;/span&gt;&lt;span class="k"&gt;}&lt;/span&gt;
+      &lt;span class="k"&gt;fi&lt;/span&gt;
+&lt;span class="k"&gt;    else&lt;/span&gt;
+&lt;span class="k"&gt;      &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;MySQL (on Port 3307) is not running, but PID file exists&amp;quot;&lt;/span&gt;
+      &lt;span class="nb"&gt;exit &lt;/span&gt;1
+    &lt;span class="k"&gt;fi&lt;/span&gt;
+&lt;span class="k"&gt;  else&lt;/span&gt;
+&lt;span class="k"&gt;    &lt;/span&gt;&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;MySQL (on Port 3307) is not running&amp;quot;&lt;/span&gt;
+    &lt;span class="nb"&gt;exit &lt;/span&gt;2
+  &lt;span class="k"&gt;fi&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+check_root
+&lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;$1&amp;quot;&lt;/span&gt; in
+    start&lt;span class="o"&gt;)&lt;/span&gt;
+        start
+        sleep 2
+        status
+        ;;
+    stop&lt;span class="o"&gt;)&lt;/span&gt;
+        stop
+        sleep 2
+        status
+        ;;
+    status&lt;span class="o"&gt;)&lt;/span&gt;
+        status
+        ;;
+    *&lt;span class="o"&gt;)&lt;/span&gt;
+        &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;$&amp;quot;Usage: $0 {start|stop|status}&amp;quot;&lt;/span&gt;
+        &lt;span class="nb"&gt;exit &lt;/span&gt;2
+&lt;span class="k"&gt;esac&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+
+&lt;p&gt;$ sudo chmod +x /etc/init.d/mysql_3307&lt;/p&gt;
+&lt;p&gt;$ sudo /etc/init.d/mysql_3307 status&lt;/p&gt;</summary><category term="MySQL"></category></entry><entry><title>Create an Ansible Module and then use Module Provided Facts</title><link href="http://mcsrainbow.github.io/articles/create-an-ansible-module-and-then-use-module-provided-facts.html" rel="alternate"></link><updated>2014-09-25T16:47:00+08:00</updated><author><name>mcsrainbow</name></author><id>tag:mcsrainbow.github.io,2014-09-25:articles/create-an-ansible-module-and-then-use-module-provided-facts.html</id><summary type="html">&lt;p&gt;Sometimes the default Ansible Facts are not enough.&lt;/p&gt;
 &lt;p&gt;For example, Ansible doesn't provide "ansible_private_ipv4_address" which with private IP address.&lt;/p&gt;
 &lt;p&gt;With it, we don't need to worry about which IP on which NIC should be used.&lt;/p&gt;
 &lt;p&gt;But we can create an Ansible module and then use module provided 'Facts'&lt;/p&gt;

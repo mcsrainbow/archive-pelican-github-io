@@ -46,56 +46,71 @@
         
 
             <article>
-                <a href="http://mcsrainbow.github.io/articles/create-an-ansible-module-and-then-use-module-provided-facts.html"><h3 class="article-title">Create an Ansible Module and then use Module Provided Facts</h3></a>
-<h6 class="subheader" title="2014-09-25T16:47:00">2014-09-25
+                <a href="http://mcsrainbow.github.io/articles/setup-a-new-mysql-service-on-port-3307-without-touching-existing-database.html"><h3 class="article-title">Setup a new MySQL Service on Port 3307 without touching existing database</h3></a>
+<h6 class="subheader" title="2014-09-25T18:18:00">2014-09-25
 </h6>
 
 
-<p>Sometimes the default Ansible Facts are not enough.</p>
-<p>For example, Ansible doesn't provide "ansible_private_ipv4_address" which with private IP address.</p>
-<p>With it, we don't need to worry about which IP on which NIC should be used.</p>
-<p>But we can create an Ansible module and then use module provided 'Facts'</p>
-<p><strong>The steps:</strong></p>
-<p>[root@idc-server2 ~]# ifconfig</p>
-<div class="highlight"><pre><span class="n">eth0</span>      <span class="n">Link</span> <span class="n">encap</span><span class="o">:</span><span class="n">Ethernet</span>  <span class="n">HWaddr</span> <span class="mi">1</span><span class="n">B</span><span class="o">:</span><span class="mi">2</span><span class="n">B</span><span class="o">:</span><span class="mi">3</span><span class="n">B</span><span class="o">:</span><span class="mi">4</span><span class="n">B</span><span class="o">:</span><span class="mi">5</span><span class="n">B</span><span class="o">:</span><span class="mi">6</span><span class="n">B</span>
-          <span class="n">inet</span> <span class="n">addr</span><span class="o">:</span><span class="mf">172.16.1.2</span>  <span class="n">Bcast</span><span class="o">:</span><span class="mf">172.16.1.255</span>  <span class="n">Mask</span><span class="o">:</span><span class="mf">255.255.252.0</span>
-<span class="p">...</span>
+<p><strong>Create directories for MySQL_3307</strong></p>
+<p>$ sudo mkdir -p /opt/mysql_3307/{data,tmp,run,binlogs,log}</p>
+<p>$ sudo chown mysql:mysql /opt/mysql_3307/{data,tmp,run,binlogs,log}</p>
+<p><strong>Create configuration file for MySQL_3307</strong></p>
+<p>$ sudo vim /etc/my_3307.cnf</p>
+<div class="highlight"><pre><span class="k">[mysqld]</span>
+<span class="c1"># basic settings</span>
+<span class="na">datadir</span> <span class="o">=</span> <span class="s">/opt/mysql_3307/data</span>
+<span class="na">tmpdir</span> <span class="o">=</span> <span class="s">/opt/mysql_3307/tmp</span>
+<span class="na">socket</span> <span class="o">=</span> <span class="s">/opt/mysql_3307/run/mysqld.sock</span>
+<span class="na">port</span> <span class="o">=</span> <span class="s">3307</span>
+<span class="na">pid-file</span> <span class="o">=</span> <span class="s">/opt/mysql_3307/run/mysqld.pid</span>
 
-<span class="n">eth1</span>      <span class="n">Link</span> <span class="n">encap</span><span class="o">:</span><span class="n">Ethernet</span>  <span class="n">HWaddr</span> <span class="mi">1</span><span class="n">A</span><span class="o">:</span><span class="mi">2</span><span class="n">A</span><span class="o">:</span><span class="mi">3</span><span class="n">A</span><span class="o">:</span><span class="mi">4</span><span class="n">A</span><span class="o">:</span><span class="mi">5</span><span class="n">A</span><span class="o">:</span><span class="mi">6</span><span class="n">A</span>
-          <span class="n">inet</span> <span class="n">addr</span><span class="o">:</span><span class="mf">100.100.100.100</span>  <span class="n">Bcast</span><span class="o">:</span><span class="mf">100.100.100.255</span>  <span class="n">Mask</span><span class="o">:</span><span class="mf">255.255.255.240</span>
-<span class="p">...</span>
+<span class="c1"># innodb settings</span>
+<span class="na">default-storage-engine</span> <span class="o">=</span> <span class="s">INNODB</span>
+<span class="na">innodb_file_per_table</span> <span class="o">=</span> <span class="s">1</span>
+<span class="na">log-bin</span> <span class="o">=</span> <span class="s">/opt/mysql_3307/binlogs/bin-log-mysqld</span>
+<span class="na">log-bin-index</span> <span class="o">=</span> <span class="s">/opt/mysql_3307/binlogs/bin-log-mysqld.index</span>
+<span class="na">innodb_data_home_dir</span> <span class="o">=</span> <span class="s">/opt/mysql_3307/data</span>
+<span class="na">innodb_data_file_path</span> <span class="o">=</span> <span class="s">ibdata1:10M:autoextend</span>
+<span class="na">innodb_log_group_home_dir</span> <span class="o">=</span> <span class="s">/opt/mysql_3307/data</span>
 
-<span class="n">lo</span>        <span class="n">Link</span> <span class="n">encap</span><span class="o">:</span><span class="n">Local</span> <span class="n">Loopback</span> 
-          <span class="n">inet</span> <span class="n">addr</span><span class="o">:</span><span class="mf">127.0.0.1</span>  <span class="n">Mask</span><span class="o">:</span><span class="mf">255.0.0.0</span>
-<span class="p">...</span>
+<span class="c1"># server id</span>
+<span class="na">server-id</span><span class="o">=</span><span class="s">33071</span>
+
+<span class="c1"># other settings</span>
+<span class="k">[mysqld_safe]</span>
+<span class="na">log-error</span> <span class="o">=</span> <span class="s">/opt/mysql_3307/log/mysqld.log</span>
+<span class="na">pid-file</span> <span class="o">=</span> <span class="s">/opt/mysql_3307/run/mysqld.pid</span>
+<span class="na">open-files-limit</span> <span class="o">=</span> <span class="s">8192</span>
+
+<span class="k">[mysqlhotcopy]</span>
+<span class="err">interactive-timeout</span>
+
+<span class="k">[client]</span>
+<span class="na">port</span> <span class="o">=</span> <span class="s">3307</span>
+<span class="na">socket</span> <span class="o">=</span> <span class="s">/opt/mysql_3307/run/mysqld.sock</span>
+<span class="na">default-character-set</span> <span class="o">=</span> <span class="s">utf8</span>
 </pre></div>
 
 
-<p>[root@idc-server1 ansible]# vim myfacts.yml</p>
-<div class="highlight"><pre><span class="o">---</span>
-<span class="o">-</span> <span class="n">hosts</span><span class="o">:</span> <span class="n">idc</span><span class="o">-</span><span class="n">server2</span>
-  <span class="nl">roles:</span>
-  <span class="o">-</span> <span class="n">myfacts</span>
-</pre></div>
-
-
-<p>[root@idc-server1 ansible]# mkdir -p roles/myfacts/{tasks,templates}</p>
-<div class="highlight"><pre><span class="o">---</span>
-<span class="o">-</span> <span class="n">name</span><span class="o">:</span> <span class="n">run</span> <span class="n">myfacts</span> <span class="n">module</span> <span class="n">to</span> <span class="n">get</span> <span class="n">customized</span> <span class="n">facts</span>
-  <span class="nl">myfacts:</span> <span class="n">get_facts</span><span class="o">=</span><span class="n">yes</span>
-
-<span class="o">-</span> <span class="n">name</span><span class="o">:</span> <span class="n">update</span> <span class="n">file</span> <span class="n">with</span> <span class="n">the</span> <span class="n">customized</span> <span class="n">facts</span>
-  <span class="nl">template:</span> <span class="n">src</span><span class="o">=</span><span class="n">myfacts</span><span class="p">.</span><span class="n">txt</span><span class="p">.</span><span class="n">j2</span> <span class="n">dest</span><span class="o">=/</span><span class="n">tmp</span><span class="o">/</span><span class="n">myfacts</span><span class="p">.</span><span class="n">txt</span>
-</pre></div>
-
-
-<p>[root@idc-server1 ansible]# mkdir -p library/heylinux</p>
-<p>[root@idc-server1 ansible]# vim library/heylinux/myfacts</p>
-<div class="highlight"><pre><span class="n">ansible_private_ipv4_address</span> <span class="o">:</span> <span class="p">{{</span> <span class="n">ansible_private_ipv4_address</span> <span class="p">}}</span>
-</pre></div>
-
-
-<p>[root@idc-server1 ansible]# vim /usr/share/ansible/heylinux/myfacts</p>
+<p><strong>Initialize MySQL_3307</strong></p>
+<p>$ sudo -i</p>
+<p># su - mysql</p>
+<p>$ mysql_install_db --user=mysql --datadir=/opt/mysql_3307/data/ --defaults-file=/etc/my_3307.cnf</p>
+<p>$ exit</p>
+<p># exit</p>
+<p><strong>Start MySQL_3307</strong></p>
+<p>$ sudo mysqld_safe --defaults-file=/etc/my_3307.cnf --user=mysql &gt;/dev/null 2&gt;&amp;1 &amp;</p>
+<p><strong>Stop MySQL_3307</strong></p>
+<p>$ sudo pkill -kill -f "/etc/my_3307.cnf"</p>
+<p><strong>Connect to MySQL_3307</strong></p>
+<p>Must use mysql_3307 to connect MySQL_3307 if you use mysql client on local.</p>
+<p>Because "-P 3307" and "--port=3307" not work, mysql client will still connect the default port 3306.</p>
+<p>Have to connect via socket file.</p>
+<p>On other servers, it's ok. I searched on Google, this might be a bug.</p>
+<p>$ alias mysql_3307='mysql -S /opt/mysql_3307/run/mysqld.sock'</p>
+<p>$ mysql_3307 -uroot -p</p>
+<p><strong>Create service script for MySQL_3307</strong></p>
+<p>$ sudo vim /etc/init.d/mysql_3307</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -131,65 +146,171 @@
 33
 34
 35
-36</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#!/usr/bin/python</span>
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#!/bin/sh</span>
+<span class="c">#</span>
+<span class="c"># MySQL daemon on Port 3307 start/stop/status script.</span>
+<span class="c"># by Dong Guo at 2014-03-19</span>
+<span class="c">#</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">shlex</span>
-<span class="kn">import</span> <span class="nn">commands</span>
-<span class="kn">import</span> <span class="nn">re</span>
+<span class="nv">CONF</span><span class="o">=</span><span class="s2">&quot;/etc/my_3307.cnf&quot;</span>
+<span class="nv">PIDFILE</span><span class="o">=</span><span class="s2">&quot;/opt/mysql_3307/run/mysqld.pid&quot;</span>
 
-<span class="k">def</span> <span class="nf">get_ansible_private_ipv4_address</span><span class="p">():</span>
-    <span class="n">iprex</span> <span class="o">=</span> <span class="s">&quot;(^192\.168)|(^10\.)|(^172\.1[6-9])|(^172\.2[0-9])|(^172\.3[0-1])&quot;</span>
-    <span class="n">output</span> <span class="o">=</span> <span class="n">commands</span><span class="o">.</span><span class="n">getoutput</span><span class="p">(</span><span class="s">&quot;&quot;&quot;/sbin/ifconfig |grep &quot;Link encap&quot; |awk &#39;{print $1}&#39; |grep -wv &#39;lo&#39;&quot;&quot;&quot;</span><span class="p">)</span>
-    <span class="n">nics</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">nics</span><span class="p">:</span>
-        <span class="n">ipaddr</span> <span class="o">=</span> <span class="n">commands</span><span class="o">.</span><span class="n">getoutput</span><span class="p">(</span><span class="s">&quot;&quot;&quot;/sbin/ifconfig </span><span class="si">%s</span><span class="s"> |grep -w &quot;inet addr&quot; |cut -d: -f2 | awk &#39;{print $1}&#39;&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">iprex</span><span class="p">,</span><span class="n">ipaddr</span><span class="p">):</span>
-            <span class="n">ansible_private_ipv4_address</span> <span class="o">=</span> <span class="n">ipaddr</span>
-            <span class="k">return</span> <span class="n">ansible_private_ipv4_address</span>
+<span class="k">function </span>check_root<span class="o">(){</span>
+    <span class="k">if</span> <span class="o">[</span> <span class="nv">$EUID</span> -ne 0 <span class="o">]</span>; <span class="k">then</span>
+<span class="k">        </span><span class="nb">echo</span> <span class="s2">&quot;This script must be run as root&quot;</span> 1&gt;&amp;2
+        <span class="nb">exit </span>1
+    <span class="k">fi</span>
+<span class="o">}</span>
 
-<span class="n">ansible_facts_dict</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s">&quot;changed&quot;</span> <span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-        <span class="s">&quot;ansible_facts&quot;</span> <span class="p">:</span> <span class="p">{</span>
-            <span class="p">}</span>
-    <span class="p">}</span>
+status<span class="o">(){</span>
+  <span class="k">if </span><span class="nb">test</span> -s <span class="s2">&quot;${PIDFILE}&quot;</span>; <span class="k">then</span>
+<span class="k">    </span><span class="nb">read </span>mysqld_pid &lt; <span class="s2">&quot;${PIDFILE}&quot;</span>
+    <span class="k">if </span><span class="nb">kill</span> -0 <span class="k">${</span><span class="nv">mysqld_pid</span><span class="k">}</span> 2&gt;/dev/null ; <span class="k">then</span>
+<span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;MySQL (on Port 3307) running (${mysqld_pid})&quot;</span>
+      <span class="nb">exit </span>0
+    <span class="k">else</span>
+<span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;MySQL (on Port 3307) is not running, but PID file exists&quot;</span>
+      <span class="nb">exit </span>1
+    <span class="k">fi</span>
+<span class="k">  else</span>
+<span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;MySQL (on Port 3307) is not running&quot;</span>
+    <span class="nb">exit </span>2
+  <span class="k">fi</span>
+<span class="o">}</span>
 
-<span class="n">args_file</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-<span class="n">args_data</span> <span class="o">=</span> <span class="nb">file</span><span class="p">(</span><span class="n">args_file</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+start<span class="o">(){</span>
+  <span class="k">if </span><span class="nb">test</span> -s <span class="s2">&quot;${PIDFILE}&quot;</span>; <span class="k">then</span>
+<span class="k">    </span><span class="nb">read </span>mysqld_pid &lt; <span class="s2">&quot;${PIDFILE}&quot;</span>
+    <span class="k">if </span><span class="nb">kill</span> -0 <span class="k">${</span><span class="nv">mysqld_pid</span><span class="k">}</span> 2&gt;/dev/null ; <span class="k">then</span>
+<span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;MySQL (on Port 3307) is already running (${mysqld_pid})&quot;</span>
+      <span class="nb">exit </span>0
+    <span class="k">else</span>
+<span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;MySQL (on Port 3307) is not running, but PID file exists&quot;</span>
+      <span class="nb">exit </span>1
+    <span class="k">fi</span>
+<span class="k">  else</span>
+<span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;Starting MySQL (on Port 3307)&quot;</span>
+    mysqld_safe --defaults-file<span class="o">=</span><span class="k">${</span><span class="nv">CONF</span><span class="k">}</span> --user<span class="o">=</span>mysql &gt;/dev/null 2&gt;&amp;1 &amp;
+  <span class="k">fi</span>
+<span class="o">}</span>
 
-<span class="n">arguments</span> <span class="o">=</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">args_data</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">arguments</span><span class="p">:</span>
-    <span class="k">if</span> <span class="s">&quot;=&quot;</span> <span class="ow">in</span> <span class="n">arg</span><span class="p">:</span>
-        <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s">&quot;get_facts&quot;</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">==</span> <span class="s">&quot;yes&quot;</span><span class="p">:</span>
-            <span class="n">ansible_private_ipv4_address</span> <span class="o">=</span> <span class="n">get_ansible_private_ipv4_address</span><span class="p">()</span>
-            <span class="n">ansible_facts_dict</span><span class="p">[</span><span class="s">&#39;ansible_facts&#39;</span><span class="p">][</span><span class="s">&#39;ansible_private_ipv4_address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ansible_private_ipv4_address</span>
+stop<span class="o">(){</span>
+  <span class="k">if </span><span class="nb">test</span> -s <span class="s2">&quot;${PIDFILE}&quot;</span>; <span class="k">then</span>
+<span class="k">    </span><span class="nb">read </span>mysqld_pid &lt; <span class="s2">&quot;${PIDFILE}&quot;</span>
+    <span class="k">if </span><span class="nb">kill</span> -0 <span class="k">${</span><span class="nv">mysqld_pid</span><span class="k">}</span> 2&gt;/dev/null ; <span class="k">then</span>
+<span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;Stopping MySQL (on Port 3307)&quot;</span>
+      <span class="k">if </span>pkill -kill -f <span class="s2">&quot;${CONF}&quot;</span> ; <span class="k">then</span>
+<span class="k">        </span>rm <span class="k">${</span><span class="nv">PIDFILE</span><span class="k">}</span>
+      <span class="k">fi</span>
+<span class="k">    else</span>
+<span class="k">      </span><span class="nb">echo</span> <span class="s2">&quot;MySQL (on Port 3307) is not running, but PID file exists&quot;</span>
+      <span class="nb">exit </span>1
+    <span class="k">fi</span>
+<span class="k">  else</span>
+<span class="k">    </span><span class="nb">echo</span> <span class="s2">&quot;MySQL (on Port 3307) is not running&quot;</span>
+    <span class="nb">exit </span>2
+  <span class="k">fi</span>
+<span class="o">}</span>
 
-<span class="k">print</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">ansible_facts_dict</span><span class="p">)</span>
+check_root
+<span class="k">case</span> <span class="s2">&quot;$1&quot;</span> in
+    start<span class="o">)</span>
+        start
+        sleep 2
+        status
+        ;;
+    stop<span class="o">)</span>
+        stop
+        sleep 2
+        status
+        ;;
+    status<span class="o">)</span>
+        status
+        ;;
+    *<span class="o">)</span>
+        <span class="nb">echo</span> <span class="s2">$&quot;Usage: $0 {start|stop|status}&quot;</span>
+        <span class="nb">exit </span>2
+<span class="k">esac</span>
 </pre></div>
 </td></tr></table>
 
-<p>[root@idc-server1 ansible]# ansible-playbook -u root myfacts.yml -i hosts</p>
-<div class="highlight"><pre><span class="n">PLAY</span> <span class="p">[</span><span class="n">idc1</span><span class="o">-</span><span class="n">server2</span><span class="p">]</span> <span class="o">***************************************************************</span>
+<p>$ sudo chmod +x /etc/init.d/mysql_3307</p>
+<p>$ sudo /etc/init.d/mysql_3307 status</p><p class="subheader">Category: <a href="http://mcsrainbow.github.io/category/linuxunix.html">Linux$Unix</a>
 
-<span class="n">GATHERING</span> <span class="n">FACTS</span> <span class="o">***************************************************************</span>
-<span class="nl">ok:</span> <span class="p">[</span><span class="n">idc1</span><span class="o">-</span><span class="n">server2</span><span class="p">]</span>
-
-<span class="nl">TASK:</span> <span class="p">[</span><span class="n">myfacts</span> <span class="o">|</span> <span class="n">run</span> <span class="n">myfacts</span> <span class="n">module</span> <span class="n">to</span> <span class="n">get</span> <span class="n">customized</span> <span class="n">facts</span><span class="p">]</span> <span class="o">**************</span>
-<span class="nl">ok:</span> <span class="p">[</span><span class="n">idc1</span><span class="o">-</span><span class="n">server2</span><span class="p">]</span>
-
-<span class="nl">TASK:</span> <span class="p">[</span><span class="n">myfacts</span> <span class="o">|</span> <span class="n">update</span> <span class="n">file</span> <span class="n">with</span> <span class="n">the</span> <span class="n">customized</span> <span class="n">facts</span><span class="p">]</span> <span class="o">*********************</span>
-<span class="nl">changed:</span> <span class="p">[</span><span class="n">idc1</span><span class="o">-</span><span class="n">server2</span><span class="p">]</span>
-
-<span class="n">PLAY</span> <span class="n">RECAP</span> <span class="o">********************************************************************</span>
-<span class="n">idc1</span><span class="o">-</span><span class="n">server2</span>                   <span class="o">:</span> <span class="n">ok</span><span class="o">=</span><span class="mi">3</span>    <span class="n">changed</span><span class="o">=</span><span class="mi">1</span>    <span class="n">unreachable</span><span class="o">=</span><span class="mi">0</span>    <span class="n">failed</span><span class="o">=</span><span class="mi">0</span>  
-</pre></div>
+    Tagged: 
+    <a href="http://mcsrainbow.github.io/tag/mysql.html">MySQL </a>
+</p>
 
 
-<p>[root@idc-server1 ansible]# ssh idc1-server2 'cat /tmp/myfacts.txt'</p>
-<div class="highlight"><pre><span class="n">ansible_private_ipv4_address</span> <span class="o">:</span> <span class="mf">172.16</span><span class="o">.</span><span class="mf">1.2</span>
-</pre></div><p class="subheader">Category: <a href="http://mcsrainbow.github.io/category/linuxunix.html">Linux&Unix</a>
+
+<p><a href="http://mcsrainbow.github.io/articles/setup-a-new-mysql-service-on-port-3307-without-touching-existing-database.html#disqus_thread">Comments</a></p>            </article>
+
+
+                <hr  class="gradient"/>
+
+
+        
+
+
+            <article>
+                <a href="http://mcsrainbow.github.io/articles/create-an-ansible-module-and-then-use-module-provided-facts.html"><h3 class="article-title">Create an Ansible Module and then use Module Provided Facts</h3></a>
+<h6 class="subheader" title="2014-09-25T16:47:00">2014-09-25
+</h6>
+
+
+<p>Sometimes the default Ansible Facts are not enough.</p>
+<p>For example, Ansible doesn't provide "ansible_private_ipv4_address" which with private IP address.</p>
+<p>With it, we don't need to worry about which IP on which NIC should be used.</p>
+<p>But we can create an Ansible module and then use module provided 'Facts ...</p><p class="subheader">Category: <a href="http://mcsrainbow.github.io/category/linuxunix.html">Linux&Unix</a>
 
     Tagged: 
     <a href="http://mcsrainbow.github.io/tag/ansible.html">Ansible </a>
@@ -198,11 +319,9 @@
 
 
 
-<p><a href="http://mcsrainbow.github.io/articles/create-an-ansible-module-and-then-use-module-provided-facts.html#disqus_thread">Comments</a></p>            </article>
-
-
+<p><a href="http://mcsrainbow.github.io/articles/create-an-ansible-module-and-then-use-module-provided-facts.html#disqus_thread">Comments</a></p>                <a class="button radius secondary small right" href="http://mcsrainbow.github.io/articles/create-an-ansible-module-and-then-use-module-provided-facts.html">Read More</a>
                 <hr  class="gradient"/>
-
+            </article>
 
         
 

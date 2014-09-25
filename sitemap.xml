@@ -5,30 +5,37 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://mcsrainbow.github.io/index.html</loc>
-<lastmod>2014-09-25T18:10:07-00:00</lastmod>
+<lastmod>2014-09-25T18:26:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.8</priority>
 </url>
 
 <url>
 <loc>http://mcsrainbow.github.io/archives.html</loc>
-<lastmod>2014-09-25T18:10:07-00:00</lastmod>
+<lastmod>2014-09-25T18:26:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.8</priority>
 </url>
 
 <url>
 <loc>http://mcsrainbow.github.io/tags.html</loc>
-<lastmod>2014-09-25T18:10:07-00:00</lastmod>
+<lastmod>2014-09-25T18:26:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.8</priority>
 </url>
 
 <url>
 <loc>http://mcsrainbow.github.io/categories.html</loc>
-<lastmod>2014-09-25T18:10:07-00:00</lastmod>
+<lastmod>2014-09-25T18:26:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.8</priority>
+</url>
+
+<url>
+<loc>http://mcsrainbow.github.io/articles/setup-a-new-mysql-service-on-port-3307-without-touching-existing-database.html</loc>
+<lastmod>2014-09-25T18:18:00-00:00</lastmod>
+<changefreq>daily</changefreq>
+<priority>1</priority>
 </url>
 
 <url>
@@ -47,7 +54,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://mcsrainbow.github.io/category/linuxunix.html</loc>
-<lastmod>2014-09-25T16:47:00+08:06</lastmod>
+<lastmod>2014-09-25T18:18:00+08:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.8</priority>
 </url>
@@ -88,8 +95,15 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
+<loc>http://mcsrainbow.github.io/tag/mysql.html</loc>
+<lastmod>2014-09-25T18:18:00+08:06</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.8</priority>
+</url>
+
+<url>
 <loc>http://mcsrainbow.github.io/author/mcsrainbow.html</loc>
-<lastmod>2014-09-25T16:47:00+08:06</lastmod>
+<lastmod>2014-09-25T18:18:00+08:06</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.8</priority>
 </url>
