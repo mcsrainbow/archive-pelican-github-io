@@ -232,13 +232,13 @@ check_root
 &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 
 &lt;p&gt;&lt;code&gt;$ sudo chmod +x /etc/init.d/mysql_3307&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;$ sudo /etc/init.d/mysql_3307 status&lt;/code&gt;&lt;/p&gt;</summary><category term="MySQL"></category></entry><entry><title>Create an Ansible Module and then use Module Provided Facts</title><link href="http://mcsrainbow.github.io/articles/create-an-ansible-module-and-then-use-module-provided-facts.html" rel="alternate"></link><updated>2014-09-25T16:47:00+08:00</updated><author><name>mcsrainbow</name></author><id>tag:mcsrainbow.github.io,2014-09-25:articles/create-an-ansible-module-and-then-use-module-provided-facts.html</id><summary type="html">&lt;p&gt;For example, Ansible doesn't provide "ansible_private_ipv4_address" which with private IP address.&lt;p&gt;
-With it, we don't need to worry about which IP on which NIC should be used.&lt;p&gt;
-But we can create an Ansible module and then use module provided 'Facts'&lt;p&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;$ sudo /etc/init.d/mysql_3307 status&lt;/code&gt;&lt;/p&gt;</summary><category term="MySQL"></category></entry><entry><title>Create an Ansible Module and then use Module Provided Facts</title><link href="http://mcsrainbow.github.io/articles/create-an-ansible-module-and-then-use-module-provided-facts.html" rel="alternate"></link><updated>2014-09-25T16:47:00+08:00</updated><author><name>mcsrainbow</name></author><id>tag:mcsrainbow.github.io,2014-09-25:articles/create-an-ansible-module-and-then-use-module-provided-facts.html</id><summary type="html">&lt;p&gt;For example, Ansible doesn't provide "ansible_private_ipv4_address" which with private IP address.
+With it, we don't need to worry about which IP on which NIC should be used.
+But we can create an Ansible module and then use module provided 'Facts'.&lt;/p&gt;
 &lt;p&gt;Sometimes the default Ansible Facts are not enough.&lt;/p&gt;
 &lt;p&gt;For example, Ansible doesn't provide "ansible_private_ipv4_address" which with private IP address.&lt;/p&gt;
 &lt;p&gt;With it, we don't need to worry about which IP on which NIC should be used.&lt;/p&gt;
-&lt;p&gt;But we can create an Ansible module and then use module provided 'Facts'&lt;/p&gt;
+&lt;p&gt;But we can create an Ansible module and then use module provided 'Facts'.&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;The steps:&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;[root@idc-server2 ~]# ifconfig&lt;/code&gt;&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;eth0&lt;/span&gt;      &lt;span class="n"&gt;Link&lt;/span&gt; &lt;span class="n"&gt;encap&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;Ethernet&lt;/span&gt;  &lt;span class="n"&gt;HWaddr&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="n"&gt;B&lt;/span&gt;
