@@ -4,7 +4,7 @@
     <!-- Set the viewport width to device width for mobile -->
     <meta name="viewport" content="width=device-width" />
 
-    <title>HeyDevOps</title>
+    <title>Create an Ansible Module and then use Module Provided Facts</title>
 
     <link rel="stylesheet" href="http://mcsrainbow.github.io/theme/css/normalize.css" />
     <link rel="stylesheet" href="http://mcsrainbow.github.io/theme/css/foundation.min.css" />
@@ -42,16 +42,17 @@
 
     <!-- Main Blog Content -->
     <div class="large-9 columns">
-        
-        
+<article>
+    <header>
+        <h3 class="article-title"><a href="http://mcsrainbow.github.io/articles/create-an-ansible-module-and-then-use-module-provided-facts.html" rel="bookmark"
+        title="Permalink to Create an Ansible Module and then use Module Provided Facts">Create an Ansible Module and then use Module Provided Facts</a></h3>
+    </header>
 
-            <article>
-                <a href="http://mcsrainbow.github.io/articles/create-an-ansible-module-and-then-use-module-provided-facts.html"><h3 class="article-title">Create an Ansible Module and then use Module Provided Facts</h3></a>
 <h6 class="subheader" title="2014-09-25T16:47:00">2014-09-25
 </h6>
 
 
-<p>Sometimes the default Ansible Facts are not enough.</p>
+    <p>Sometimes the default Ansible Facts are not enough.</p>
 <p>For example, Ansible doesn't provide "ansible_private_ipv4_address" which with private IP address.</p>
 <p>With it, we don't need to worry about which IP on which NIC should be used.</p>
 <p>But we can create an Ansible module and then use module provided 'Facts'</p>
@@ -189,7 +190,8 @@
 
 <p>root@idc-server1 ansible]# ssh idc1-server2 'cat /tmp/myfacts.txt'</p>
 <div class="highlight"><pre><span class="n">ansible_private_ipv4_address</span> <span class="o">:</span> <span class="mf">172.16</span><span class="o">.</span><span class="mf">1.2</span>
-</pre></div><p class="subheader">Category: <a href="http://mcsrainbow.github.io/category/linuxunix.html">Linux&Unix</a>
+</pre></div>
+<p class="subheader">Category: <a href="http://mcsrainbow.github.io/category/linuxunix.html">Linux&Unix</a>
 
     Tagged: 
     <a href="http://mcsrainbow.github.io/tag/ansible.html">Ansible </a>
@@ -198,43 +200,22 @@
 
 
 
-<p><a href="http://mcsrainbow.github.io/articles/create-an-ansible-module-and-then-use-module-provided-facts.html#disqus_thread">Comments</a></p>            </article>
 
+	<h4>Comments</h4>
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'mcsrainbow'
+        var disqus_identifier = "articles/create-an-ansible-module-and-then-use-module-provided-facts.html";
+        var disqus_url = "http://mcsrainbow.github.io/articles/create-an-ansible-module-and-then-use-module-provided-facts.html";
 
-                <hr  class="gradient"/>
-
-
-        
-
-
-            <article>
-                <a href="http://mcsrainbow.github.io/articles/hello.html"><h3 class="article-title">Hello</h3></a>
-<h6 class="subheader" title="2014-09-24T02:06:00">2014-09-24
-</h6>
-
-
-<p>Hello Pelican, Markdown and GitHub Pages.</p><p class="subheader">Category: <a href="http://mcsrainbow.github.io/category/uncategorized.html">Uncategorized</a>
-
-    Tagged: 
-    <a href="http://mcsrainbow.github.io/tag/pelican.html">Pelican </a>
-    <a href="http://mcsrainbow.github.io/tag/markdown.html">Markdown </a>
-</p>
-
-
-
-<p><a href="http://mcsrainbow.github.io/articles/hello.html#disqus_thread">Comments</a></p>                <a class="button radius secondary small right" href="http://mcsrainbow.github.io/articles/hello.html">Read More</a>
-                <hr  class="gradient"/>
-            </article>
-
-            <!-- /#posts-list -->
-<div class="pagination-centered">
-<h6 class="subheader">Page 1 of 1</h6>
-
-<p>
-
-</p>
-</div>
-
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</article>
     </div>
     <!-- End Main Content -->
 
