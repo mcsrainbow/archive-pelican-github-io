@@ -67,7 +67,8 @@ hr.gradient {
 	margin-top: 1em;
 	margin-bottom: 1em;
 	border: 1px solid #ccc;
-	background: #073642;
+	/*background: #073642;*/
+	background: #fffff9;
 	padding: 1em;
 	overflow: auto;
 }
