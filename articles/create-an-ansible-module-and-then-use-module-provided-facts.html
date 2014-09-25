@@ -57,7 +57,7 @@
 <p>With it, we don't need to worry about which IP on which NIC should be used.</p>
 <p>But we can create an Ansible module and then use module provided 'Facts'</p>
 <p><strong>The steps:</strong></p>
-<p>[root@idc-server2 ~]# ifconfig</p>
+<p><code>[root@idc-server2 ~]# ifconfig</code></p>
 <div class="highlight"><pre><span class="n">eth0</span>      <span class="n">Link</span> <span class="n">encap</span><span class="o">:</span><span class="n">Ethernet</span>  <span class="n">HWaddr</span> <span class="mi">1</span><span class="n">B</span><span class="o">:</span><span class="mi">2</span><span class="n">B</span><span class="o">:</span><span class="mi">3</span><span class="n">B</span><span class="o">:</span><span class="mi">4</span><span class="n">B</span><span class="o">:</span><span class="mi">5</span><span class="n">B</span><span class="o">:</span><span class="mi">6</span><span class="n">B</span>
           <span class="n">inet</span> <span class="n">addr</span><span class="o">:</span><span class="mf">172.16.1.2</span>  <span class="n">Bcast</span><span class="o">:</span><span class="mf">172.16.1.255</span>  <span class="n">Mask</span><span class="o">:</span><span class="mf">255.255.252.0</span>
 <span class="p">...</span>
@@ -72,7 +72,7 @@
 </pre></div>
 
 
-<p>[root@idc-server1 ansible]# vim myfacts.yml</p>
+<p><code>[root@idc-server1 ansible]# vim myfacts.yml</code></p>
 <div class="highlight"><pre><span class="o">---</span>
 <span class="o">-</span> <span class="n">hosts</span><span class="o">:</span> <span class="n">idc</span><span class="o">-</span><span class="n">server2</span>
   <span class="nl">roles:</span>
@@ -80,7 +80,7 @@
 </pre></div>
 
 
-<p>[root@idc-server1 ansible]# mkdir -p roles/myfacts/{tasks,templates}</p>
+<p><code>[root@idc-server1 ansible]# mkdir -p roles/myfacts/{tasks,templates}</code></p>
 <div class="highlight"><pre><span class="o">---</span>
 <span class="o">-</span> <span class="n">name</span><span class="o">:</span> <span class="n">run</span> <span class="n">myfacts</span> <span class="n">module</span> <span class="n">to</span> <span class="n">get</span> <span class="n">customized</span> <span class="n">facts</span>
   <span class="nl">myfacts:</span> <span class="n">get_facts</span><span class="o">=</span><span class="n">yes</span>
@@ -90,13 +90,13 @@
 </pre></div>
 
 
-<p>[root@idc-server1 ansible]# mkdir -p library/heylinux</p>
-<p>[root@idc-server1 ansible]# vim library/heylinux/myfacts</p>
+<p><code>[root@idc-server1 ansible]# mkdir -p library/heylinux</code></p>
+<p><code>[root@idc-server1 ansible]# vim library/heylinux/myfacts</code></p>
 <div class="highlight"><pre><span class="n">ansible_private_ipv4_address</span> <span class="o">:</span> <span class="p">{{</span> <span class="n">ansible_private_ipv4_address</span> <span class="p">}}</span>
 </pre></div>
 
 
-<p>[root@idc-server1 ansible]# vim /usr/share/ansible/heylinux/myfacts</p>
+<p><code>[root@idc-server1 ansible]# vim /usr/share/ansible/heylinux/myfacts</code></p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -171,7 +171,7 @@
 </pre></div>
 </td></tr></table>
 
-<p>[root@idc-server1 ansible]# ansible-playbook -u root myfacts.yml -i hosts</p>
+<p><code>[root@idc-server1 ansible]# ansible-playbook -u root myfacts.yml -i hosts</code></p>
 <div class="highlight"><pre><span class="n">PLAY</span> <span class="p">[</span><span class="n">idc1</span><span class="o">-</span><span class="n">server2</span><span class="p">]</span> <span class="o">***************************************************************</span>
 
 <span class="n">GATHERING</span> <span class="n">FACTS</span> <span class="o">***************************************************************</span>
@@ -188,7 +188,7 @@
 </pre></div>
 
 
-<p>[root@idc-server1 ansible]# ssh idc1-server2 'cat /tmp/myfacts.txt'</p>
+<p><code>[root@idc-server1 ansible]# ssh idc1-server2 'cat /tmp/myfacts.txt'</code></p>
 <div class="highlight"><pre><span class="n">ansible_private_ipv4_address</span> <span class="o">:</span> <span class="mf">172.16</span><span class="o">.</span><span class="mf">1.2</span>
 </pre></div>
 <p class="subheader">Category: <a href="http://mcsrainbow.github.io/category/linuxunix.html">Linux&Unix</a>
