@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>HeyDevOps</title><link href="http://mcsrainbow.github.io/" rel="alternate"></link><link href="http://mcsrainbow.github.io/feeds/linuxunix.atom.xml" rel="self"></link><id>http://mcsrainbow.github.io/</id><updated>2014-09-25T18:18:00+08:00</updated><entry><title>Setup a new MySQL Service on Port 3307 without touching existing database</title><link href="http://mcsrainbow.github.io/articles/setup-a-new-mysql-service-on-port-3307-without-touching-existing-database.html" rel="alternate"></link><updated>2014-09-25T18:18:00+08:00</updated><author><name>mcsrainbow</name></author><id>tag:mcsrainbow.github.io,2014-09-25:articles/setup-a-new-mysql-service-on-port-3307-without-touching-existing-database.html</id><summary type="html">&lt;p&gt;&lt;strong&gt;Create directories for MySQL_3307&lt;/strong&gt;&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>HeyDevOps</title><link href="http://mcsrainbow.github.io/" rel="alternate"></link><link href="http://mcsrainbow.github.io/feeds/linuxunix.atom.xml" rel="self"></link><id>http://mcsrainbow.github.io/</id><updated>2014-09-25T18:18:00+08:00</updated><entry><title>Setup a new MySQL Service on Port 3307 without touching existing database</title><link href="http://mcsrainbow.github.io/articles/setup-a-new-mysql-service-on-port-3307-without-touching-existing-database.html" rel="alternate"></link><updated>2014-09-25T18:18:00+08:00</updated><author><name>mcsrainbow</name></author><id>tag:mcsrainbow.github.io,2014-09-25:articles/setup-a-new-mysql-service-on-port-3307-without-touching-existing-database.html</id><summary type="html">&lt;p&gt;&lt;strong&gt;1. Create directories for MySQL_3307&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;$ sudo mkdir -p /opt/mysql_3307/{data,tmp,run,binlogs,log}&lt;/p&gt;
 &lt;p&gt;$ sudo chown mysql:mysql /opt/mysql_3307/{data,tmp,run,binlogs,log}&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Create configuration file for MySQL_3307&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;2. Create configuration file for MySQL_3307&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;$ sudo vim /etc/my_3307.cnf&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;[mysqld]&lt;/span&gt;
 &lt;span class="c1"&gt;# basic settings&lt;/span&gt;
@@ -40,24 +40,24 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;&lt;strong&gt;Initialize MySQL_3307&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;3. Initialize MySQL_3307&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;$ sudo -i&lt;/p&gt;
 &lt;p&gt;# su - mysql&lt;/p&gt;
 &lt;p&gt;$ mysql_install_db --user=mysql --datadir=/opt/mysql_3307/data/ --defaults-file=/etc/my_3307.cnf&lt;/p&gt;
 &lt;p&gt;$ exit&lt;/p&gt;
 &lt;p&gt;# exit&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Start MySQL_3307&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;4. Start MySQL_3307&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;$ sudo mysqld_safe --defaults-file=/etc/my_3307.cnf --user=mysql &amp;gt;/dev/null 2&amp;gt;&amp;amp;1 &amp;amp;&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Stop MySQL_3307&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;5. Stop MySQL_3307&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;$ sudo pkill -kill -f "/etc/my_3307.cnf"&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Connect to MySQL_3307&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;6. Connect to MySQL_3307&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;Must use mysql_3307 to connect MySQL_3307 if you use mysql client on local.&lt;/p&gt;
 &lt;p&gt;Because "-P 3307" and "--port=3307" not work, mysql client will still connect the default port 3306.&lt;/p&gt;
 &lt;p&gt;Have to connect via socket file.&lt;/p&gt;
 &lt;p&gt;On other servers, it's ok. I searched on Google, this might be a bug.&lt;/p&gt;
 &lt;p&gt;$ alias mysql_3307='mysql -S /opt/mysql_3307/run/mysqld.sock'&lt;/p&gt;
 &lt;p&gt;$ mysql_3307 -uroot -p&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;Create service script for MySQL_3307&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;7. Create service script for MySQL_3307&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;$ sudo vim /etc/init.d/mysql_3307&lt;/p&gt;
 &lt;table class="highlighttable"&gt;&lt;tr&gt;&lt;td class="linenos"&gt;&lt;div class="linenodiv"&gt;&lt;pre&gt; 1
  2

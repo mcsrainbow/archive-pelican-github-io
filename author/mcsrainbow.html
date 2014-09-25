@@ -51,10 +51,10 @@
 </h6>
 
 
-<p><strong>Create directories for MySQL_3307</strong></p>
+<p><strong>1. Create directories for MySQL_3307</strong></p>
 <p>$ sudo mkdir -p /opt/mysql_3307/{data,tmp,run,binlogs,log}</p>
 <p>$ sudo chown mysql:mysql /opt/mysql_3307/{data,tmp,run,binlogs,log}</p>
-<p><strong>Create configuration file for MySQL_3307</strong></p>
+<p><strong>2. Create configuration file for MySQL_3307</strong></p>
 <p>$ sudo vim /etc/my_3307.cnf</p>
 <div class="highlight"><pre><span class="k">[mysqld]</span>
 <span class="c1"># basic settings</span>
@@ -92,24 +92,24 @@
 </pre></div>
 
 
-<p><strong>Initialize MySQL_3307</strong></p>
+<p><strong>3. Initialize MySQL_3307</strong></p>
 <p>$ sudo -i</p>
 <p># su - mysql</p>
 <p>$ mysql_install_db --user=mysql --datadir=/opt/mysql_3307/data/ --defaults-file=/etc/my_3307.cnf</p>
 <p>$ exit</p>
 <p># exit</p>
-<p><strong>Start MySQL_3307</strong></p>
+<p><strong>4. Start MySQL_3307</strong></p>
 <p>$ sudo mysqld_safe --defaults-file=/etc/my_3307.cnf --user=mysql &gt;/dev/null 2&gt;&amp;1 &amp;</p>
-<p><strong>Stop MySQL_3307</strong></p>
+<p><strong>5. Stop MySQL_3307</strong></p>
 <p>$ sudo pkill -kill -f "/etc/my_3307.cnf"</p>
-<p><strong>Connect to MySQL_3307</strong></p>
+<p><strong>6. Connect to MySQL_3307</strong></p>
 <p>Must use mysql_3307 to connect MySQL_3307 if you use mysql client on local.</p>
 <p>Because "-P 3307" and "--port=3307" not work, mysql client will still connect the default port 3306.</p>
 <p>Have to connect via socket file.</p>
 <p>On other servers, it's ok. I searched on Google, this might be a bug.</p>
 <p>$ alias mysql_3307='mysql -S /opt/mysql_3307/run/mysqld.sock'</p>
 <p>$ mysql_3307 -uroot -p</p>
-<p><strong>Create service script for MySQL_3307</strong></p>
+<p><strong>7. Create service script for MySQL_3307</strong></p>
 <p>$ sudo vim /etc/init.d/mysql_3307</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
