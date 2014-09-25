@@ -52,10 +52,10 @@
 
 
 <p><strong>1. Create directories for MySQL_3307</strong></p>
-<p><code>$ sudo mkdir -p /opt/mysql_3307/{data,tmp,run,binlogs,log}</code>
-<code>$ sudo chown mysql:mysql /opt/mysql_3307/{data,tmp,run,binlogs,log}</code></p>
+<p><code>$ sudo mkdir -p /opt/mysql_3307/{data,tmp,run,binlogs,log}</code></p>
+<p><code>$ sudo chown mysql:mysql /opt/mysql_3307/{data,tmp,run,binlogs,log}</code></p>
 <p><strong>2. Create configuration file for MySQL_3307</strong></p>
-<p>$ sudo vim /etc/my_3307.cnf</p>
+<p><code>$ sudo vim /etc/my_3307.cnf</code></p>
 <div class="highlight"><pre><span class="k">[mysqld]</span>
 <span class="c1"># basic settings</span>
 <span class="na">datadir</span> <span class="o">=</span> <span class="s">/opt/mysql_3307/data</span>
@@ -93,24 +93,24 @@
 
 
 <p><strong>3. Initialize MySQL_3307</strong></p>
-<p>$ sudo -i</p>
-<p># su - mysql</p>
-<p>$ mysql_install_db --user=mysql --datadir=/opt/mysql_3307/data/ --defaults-file=/etc/my_3307.cnf</p>
-<p>$ exit</p>
-<p># exit</p>
+<p><code>$ sudo -i</code></p>
+<p><code># su - mysql</code></p>
+<p><code>$ mysql_install_db --user=mysql --datadir=/opt/mysql_3307/data/ --defaults-file=/etc/my_3307.cnf</code></p>
+<p><code>$ exit</code></p>
+<p><code># exit</code></p>
 <p><strong>4. Start MySQL_3307</strong></p>
-<p>$ sudo mysqld_safe --defaults-file=/etc/my_3307.cnf --user=mysql &gt;/dev/null 2&gt;&amp;1 &amp;</p>
+<p><code>$ sudo mysqld_safe --defaults-file=/etc/my_3307.cnf --user=mysql &gt;/dev/null 2&gt;&amp;1 &amp;</code></p>
 <p><strong>5. Stop MySQL_3307</strong></p>
-<p>$ sudo pkill -kill -f "/etc/my_3307.cnf"</p>
+<p><code>$ sudo pkill -kill -f "/etc/my_3307.cnf"</code></p>
 <p><strong>6. Connect to MySQL_3307</strong></p>
 <p>Must use mysql_3307 to connect MySQL_3307 if you use mysql client on local.</p>
-<p>Because "-P 3307" and "--port=3307" not work, mysql client will still connect the default port 3306.</p>
+<p>Because <code>-P 3307</code> and <code>--port=3307</code> not work, mysql client will still connect the default port 3306.</p>
 <p>Have to connect via socket file.</p>
 <p>On other servers, it's ok. I searched on Google, this might be a bug.</p>
-<p>$ alias mysql_3307='mysql -S /opt/mysql_3307/run/mysqld.sock'</p>
-<p>$ mysql_3307 -uroot -p</p>
+<p><code>$ alias mysql_3307='mysql -S /opt/mysql_3307/run/mysqld.sock'</code></p>
+<p><code>$ mysql_3307 -uroot -p</code></p>
 <p><strong>7. Create service script for MySQL_3307</strong></p>
-<p>$ sudo vim /etc/init.d/mysql_3307</p>
+<p><code>$ sudo vim /etc/init.d/mysql_3307</code></p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -283,8 +283,8 @@ check_root
 </pre></div>
 </td></tr></table>
 
-<p>$ sudo chmod +x /etc/init.d/mysql_3307</p>
-<p>$ sudo /etc/init.d/mysql_3307 status</p><p class="subheader">Category: <a href="http://mcsrainbow.github.io/category/linuxunix.html">Linux$Unix</a>
+<p><code>$ sudo chmod +x /etc/init.d/mysql_3307</code></p>
+<p><code>$ sudo /etc/init.d/mysql_3307 status</code></p><p class="subheader">Category: <a href="http://mcsrainbow.github.io/category/linuxunix.html">Linux$Unix</a>
 
     Tagged: 
     <a href="http://mcsrainbow.github.io/tag/mysql.html">MySQL </a>
