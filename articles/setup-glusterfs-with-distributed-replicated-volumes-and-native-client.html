@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8" />
+    <!-- Set the viewport width to device width for mobile -->
+    <meta name="viewport" content="width=device-width" />
+
+    <title>Setup GlusterFS with Distributed Replicated Volumes and Native client</title>
+
+    <link rel="stylesheet" href="http://mcsrainbow.github.io/theme/css/normalize.css" />
+    <link rel="stylesheet" href="http://mcsrainbow.github.io/theme/css/foundation.min.css" />
+    <link rel="stylesheet" href="http://mcsrainbow.github.io/theme/css/style.css" />
+    <link rel="stylesheet" href="http://mcsrainbow.github.io/theme/css/pygments.css" />	
+    <script src="http://mcsrainbow.github.io/theme/js/modernizr.js"></script>
+</head>
+
+<body>
+
+<!-- Nav Bar -->
+<nav>
+<div class="top-bar">
+<div class="row">
+    <div class="large-9 large-centered columns">
+	    <h1><a href="http://mcsrainbow.github.io">HeyDevOps</a></h1>
+    </div>
+</div>
+</div>
+
+<!-- Show menu items and pages -->
+<div class="row">
+<div class="large-9 columns">
+    <ul class="button-group navigation">
+
+    </ul>
+</div>
+</div>
+</nav>
+<!-- End Nav -->
+
+
+<!-- Main Page Content and Sidebar -->
+<div class="row">
+
+    <!-- Main Blog Content -->
+    <div class="large-9 columns">
+<article>
+    <header>
+        <h3 class="article-title"><a href="http://mcsrainbow.github.io/articles/setup-glusterfs-with-distributed-replicated-volumes-and-native-client.html" rel="bookmark"
+        title="Permalink to Setup GlusterFS with Distributed Replicated Volumes and Native client">Setup GlusterFS with Distributed Replicated Volumes and Native client</a></h3>
+    </header>
+
+<h6 class="subheader" title="2014-09-26T15:39:00">2014-09-26
+</h6>
+
+
+    <p>OS: CentOS 6.4 x86_64 Minimal</p>
+<h4>1. Install packages, on idc1-server{1-4}:</h4>
+<p># wget -P /etc/yum.repos.d http://download.gluster.org/pub/gluster/glusterfs/LATEST/CentOS/glusterfs-epel.repo</p>
+<p># yum install -y glusterfs glusterfs-server glusterfs-fuse</p>
+<p># /etc/init.d/glusterd start</p>
+<p># chkconfig glusterd on</p>
+<h4>2. Configure peers, just on idc1-server1:</h4>
+<p>[root@idc1-server1 ~]# gluster peer probe idc1-server2</p>
+<div class="highlight"><pre><span class="n">peer</span> <span class="n">probe</span><span class="o">:</span> <span class="n">success</span>
+</pre></div>
+
+
+<p>[root@idc1-server1 ~]# gluster peer probe idc1-server3</p>
+<div class="highlight"><pre><span class="n">peer</span> <span class="n">probe</span><span class="o">:</span> <span class="n">success</span>
+</pre></div>
+
+
+<p>[root@idc1-server1 ~]# gluster peer probe idc1-server4</p>
+<div class="highlight"><pre><span class="n">peer</span> <span class="n">probe</span><span class="o">:</span> <span class="n">success</span>
+</pre></div>
+
+
+<p><strong>NOTE:</strong></p>
+<p>The following step is very important with the version 3.4.3!</p>
+<p>If configured all peers with hostname on one host, must remember to recreate the peer of this host on another host.</p>
+<p>Otherwise all other hosts cannot recognize this host by hostname.
+10.1.1.35 is the ip address of idc1-server1, detach it then probe with hostname.</p>
+<p>Just on idc1-server2:</p>
+<p>[root@idc1-server2 ~]# gluster peer detach 10.1.1.35</p>
+<div class="highlight"><pre><span class="n">peer</span> <span class="n">detach</span><span class="o">:</span> <span class="n">success</span>
+</pre></div>
+
+
+<p>[root@idc1-server2 ~]# gluster peer probe idc1-server1</p>
+<div class="highlight"><pre><span class="n">peer</span> <span class="n">probe</span><span class="o">:</span> <span class="n">success</span>
+</pre></div>
+
+
+<p>Just on idc1-server2:</p>
+<p>[root@idc1-server2 ~]# gluster peer status</p>
+<div class="highlight"><pre><span class="n">Number</span> <span class="n">of</span> <span class="n">Peers</span><span class="o">:</span> <span class="mi">3</span>
+
+<span class="nl">Hostname:</span> <span class="n">idc1</span><span class="o">-</span><span class="n">server3</span>
+<span class="nl">Uuid:</span> <span class="mf">01f</span><span class="mi">25251</span><span class="o">-</span><span class="mi">9</span><span class="n">ee6</span><span class="o">-</span><span class="mi">40</span><span class="n">c7</span><span class="o">-</span><span class="n">a322</span><span class="o">-</span><span class="n">af53a034aa5a</span>
+<span class="nl">State:</span> <span class="n">Peer</span> <span class="n">in</span> <span class="n">Cluster</span> <span class="p">(</span><span class="n">Connected</span><span class="p">)</span>
+
+<span class="nl">Hostname:</span> <span class="n">idc1</span><span class="o">-</span><span class="n">server4</span>
+<span class="nl">Uuid:</span> <span class="mi">212295</span><span class="n">a6</span><span class="o">-</span><span class="mf">1f</span><span class="mi">38</span><span class="o">-</span><span class="mi">4</span><span class="n">a1e</span><span class="o">-</span><span class="mi">968</span><span class="n">c</span><span class="o">-</span><span class="mf">577241318ff</span><span class="mi">1</span>
+<span class="nl">State:</span> <span class="n">Peer</span> <span class="n">in</span> <span class="n">Cluster</span> <span class="p">(</span><span class="n">Connected</span><span class="p">)</span>
+
+<span class="nl">Hostname:</span> <span class="n">idc1</span><span class="o">-</span><span class="n">server1</span>
+<span class="nl">Port:</span> <span class="mi">24007</span>
+<span class="nl">Uuid:</span> <span class="n">ed016c4e</span><span class="o">-</span><span class="mi">7159</span><span class="o">-</span><span class="mf">433f</span><span class="o">-</span><span class="mi">88</span><span class="n">a5</span><span class="o">-</span><span class="mi">5</span><span class="n">c3ebd8e36c9</span>
+<span class="nl">State:</span> <span class="n">Peer</span> <span class="n">in</span> <span class="n">Cluster</span> <span class="p">(</span><span class="n">Connected</span><span class="p">)</span>
+</pre></div>
+
+
+<h4>3. Create directories, on idc1-server{1-4}:</h4>
+<p># mkdir -p /usr/local/share/{datavolume1,datavolume2,datavolume3}</p>
+<p># chown -R root:root /mnt/{datavolume1,datavolume2,datavolume3}</p>
+<p># ls -l /usr/local/share/</p>
+<div class="highlight"><pre><span class="n">total</span> <span class="mi">24</span>
+<span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span><span class="p">.</span>  <span class="mi">2</span> <span class="n">root</span> <span class="n">root</span> <span class="mi">4096</span> <span class="n">Sep</span> <span class="mi">23</span>  <span class="mi">2011</span> <span class="n">applications</span>
+<span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span>   <span class="mi">2</span> <span class="n">root</span> <span class="n">root</span> <span class="mi">4096</span> <span class="n">Apr</span>  <span class="mi">1</span> <span class="mi">12</span><span class="o">:</span><span class="mi">19</span> <span class="n">datavolume2</span>
+<span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span><span class="p">.</span>  <span class="mi">2</span> <span class="n">root</span> <span class="n">root</span> <span class="mi">4096</span> <span class="n">Sep</span> <span class="mi">23</span>  <span class="mi">2011</span> <span class="n">info</span>
+<span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span><span class="p">.</span> <span class="mi">21</span> <span class="n">root</span> <span class="n">root</span> <span class="mi">4096</span> <span class="n">Feb</span> <span class="mi">20</span>  <span class="mi">2013</span> <span class="n">man</span>
+<span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span>   <span class="mi">2</span> <span class="n">root</span> <span class="n">root</span> <span class="mi">4096</span> <span class="n">Apr</span>  <span class="mi">1</span> <span class="mi">12</span><span class="o">:</span><span class="mi">19</span> <span class="n">datavolume1</span>
+<span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span>   <span class="mi">2</span> <span class="n">root</span> <span class="n">root</span> <span class="mi">4096</span> <span class="n">Apr</span>  <span class="mi">1</span> <span class="mi">12</span><span class="o">:</span><span class="mi">19</span> <span class="n">datavolume3</span>
+</pre></div>
+
+
+<h4>4. Create Distributed Replicated Volumes, just on idc1-server1:</h4>
+<p>[root@idc1-server1 ~]# gluster volume create datavolume1 replica 2 transport tcp idc1-server1:/usr/local/share/datavolume1 idc1-server2:/usr/local/share/datavolume1 idc1-server3:/usr/local/share/datavolume1 idc1-server4:/usr/local/share/datavolume1 force</p>
+<div class="highlight"><pre><span class="n">volume</span> <span class="n">create</span><span class="o">:</span> <span class="n">datavolume1</span><span class="o">:</span> <span class="n">success</span><span class="o">:</span> <span class="n">please</span> <span class="n">start</span> <span class="n">the</span> <span class="n">volume</span> <span class="n">to</span> <span class="n">access</span> <span class="n">data</span>
+</pre></div>
+
+
+<p>[root@idc1-server1 ~]# gluster volume create datavolume2 replica 2 transport tcp idc1-server1:/usr/local/share/datavolume2 idc1-server2:/usr/local/share/datavolume2 idc1-server3:/usr/local/share/datavolume2 idc1-server4:/usr/local/share/datavolume2 force</p>
+<div class="highlight"><pre><span class="n">volume</span> <span class="n">create</span><span class="o">:</span> <span class="n">datavolume2</span><span class="o">:</span> <span class="n">success</span><span class="o">:</span> <span class="n">please</span> <span class="n">start</span> <span class="n">the</span> <span class="n">volume</span> <span class="n">to</span> <span class="n">access</span> <span class="n">data</span>
+</pre></div>
+
+
+<p>[root@idc1-server1 ~]# gluster volume create datavolume3 replica 2 transport tcp idc1-server1:/usr/local/share/datavolume3 idc1-server2:/usr/local/share/datavolume3 idc1-server3:/usr/local/share/datavolume3 idc1-server4:/usr/local/share/datavolume3 force</p>
+<div class="highlight"><pre><span class="n">volume</span> <span class="n">create</span><span class="o">:</span> <span class="n">datavolume3</span><span class="o">:</span> <span class="n">success</span><span class="o">:</span> <span class="n">please</span> <span class="n">start</span> <span class="n">the</span> <span class="n">volume</span> <span class="n">to</span> <span class="n">access</span> <span class="n">data</span>
+</pre></div>
+
+
+<p>[root@idc1-server1 ~]# gluster volume start datavolume1</p>
+<div class="highlight"><pre><span class="n">volume</span> <span class="n">start</span><span class="o">:</span> <span class="n">datavolume1</span><span class="o">:</span> <span class="n">success</span>
+</pre></div>
+
+
+<p>[root@idc1-server1 ~]# gluster volume start datavolume2</p>
+<div class="highlight"><pre><span class="n">volume</span> <span class="n">start</span><span class="o">:</span> <span class="n">datavolume2</span><span class="o">:</span> <span class="n">success</span>
+</pre></div>
+
+
+<p>[root@idc1-server1 ~]# gluster volume start datavolume3</p>
+<div class="highlight"><pre><span class="n">volume</span> <span class="n">start</span><span class="o">:</span> <span class="n">datavolume3</span><span class="o">:</span> <span class="n">success</span>
+</pre></div>
+
+
+<p>[root@idc1-server1 ~]# gluster volume info</p>
+<div class="highlight"><pre><span class="n">Volume</span> <span class="n">Name</span><span class="o">:</span> <span class="n">datavolume1</span>
+<span class="nl">Type:</span> <span class="n">Distributed</span><span class="o">-</span><span class="n">Replicate</span>
+<span class="n">Volume</span> <span class="n">ID</span><span class="o">:</span> <span class="n">aea76c2a</span><span class="o">-</span><span class="n">b754</span><span class="o">-</span><span class="mi">4037</span><span class="o">-</span><span class="mi">9634</span><span class="o">-</span><span class="n">c2062e2955c3</span>
+<span class="nl">Status:</span> <span class="n">Started</span>
+<span class="n">Number</span> <span class="n">of</span> <span class="n">Bricks</span><span class="o">:</span> <span class="mi">2</span> <span class="n">x</span> <span class="mi">2</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">Transport</span><span class="o">-</span><span class="n">type</span><span class="o">:</span> <span class="n">tcp</span>
+<span class="nl">Bricks:</span>
+<span class="nl">Brick1:</span> <span class="n">idc1</span><span class="o">-</span><span class="n">server1</span><span class="o">:/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">datavolume1</span>
+<span class="nl">Brick2:</span> <span class="n">idc1</span><span class="o">-</span><span class="n">server2</span><span class="o">:/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">datavolume1</span>
+<span class="nl">Brick3:</span> <span class="n">idc1</span><span class="o">-</span><span class="n">server3</span><span class="o">:/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">datavolume1</span>
+<span class="nl">Brick4:</span> <span class="n">idc1</span><span class="o">-</span><span class="n">server4</span><span class="o">:/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">datavolume1</span>
+
+<span class="n">Volume</span> <span class="n">Name</span><span class="o">:</span> <span class="n">datavolume2</span>
+<span class="nl">Type:</span> <span class="n">Distributed</span><span class="o">-</span><span class="n">Replicate</span>
+<span class="n">Volume</span> <span class="n">ID</span><span class="o">:</span> <span class="mi">1</span><span class="n">ed65c6e</span><span class="o">-</span><span class="n">ee23</span><span class="o">-</span><span class="mi">475</span><span class="n">a</span><span class="o">-</span><span class="mi">82</span><span class="n">c7</span><span class="o">-</span><span class="mf">2967e2</span><span class="n">fc2569</span>
+<span class="nl">Status:</span> <span class="n">Started</span>
+<span class="n">Number</span> <span class="n">of</span> <span class="n">Bricks</span><span class="o">:</span> <span class="mi">2</span> <span class="n">x</span> <span class="mi">2</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">Transport</span><span class="o">-</span><span class="n">type</span><span class="o">:</span> <span class="n">tcp</span>
+<span class="nl">Bricks:</span>
+<span class="nl">Brick1:</span> <span class="n">idc1</span><span class="o">-</span><span class="n">server1</span><span class="o">:/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">datavolume2</span>
+<span class="nl">Brick2:</span> <span class="n">idc1</span><span class="o">-</span><span class="n">server2</span><span class="o">:/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">datavolume2</span>
+<span class="nl">Brick3:</span> <span class="n">idc1</span><span class="o">-</span><span class="n">server3</span><span class="o">:/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">datavolume2</span>
+<span class="nl">Brick4:</span> <span class="n">idc1</span><span class="o">-</span><span class="n">server4</span><span class="o">:/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">datavolume2</span>
+
+<span class="n">Volume</span> <span class="n">Name</span><span class="o">:</span> <span class="n">datavolume3</span>
+<span class="nl">Type:</span> <span class="n">Distributed</span><span class="o">-</span><span class="n">Replicate</span>
+<span class="n">Volume</span> <span class="n">ID</span><span class="o">:</span> <span class="n">b63bb4ea</span><span class="o">-</span><span class="n">bd37</span><span class="o">-</span><span class="mi">4</span><span class="n">dd6</span><span class="o">-</span><span class="mi">9</span><span class="n">a4c</span><span class="o">-</span><span class="mf">230e6</span><span class="n">d236afa</span>
+<span class="nl">Status:</span> <span class="n">Started</span>
+<span class="n">Number</span> <span class="n">of</span> <span class="n">Bricks</span><span class="o">:</span> <span class="mi">2</span> <span class="n">x</span> <span class="mi">2</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">Transport</span><span class="o">-</span><span class="n">type</span><span class="o">:</span> <span class="n">tcp</span>
+<span class="nl">Bricks:</span>
+<span class="nl">Brick1:</span> <span class="n">idc1</span><span class="o">-</span><span class="n">server1</span><span class="o">:/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">datavolume3</span>
+<span class="nl">Brick2:</span> <span class="n">idc1</span><span class="o">-</span><span class="n">server2</span><span class="o">:/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">datavolume3</span>
+<span class="nl">Brick3:</span> <span class="n">idc1</span><span class="o">-</span><span class="n">server3</span><span class="o">:/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">datavolume3</span>
+<span class="nl">Brick4:</span> <span class="n">idc1</span><span class="o">-</span><span class="n">server4</span><span class="o">:/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">datavolume3</span>
+</pre></div>
+
+
+<h4>5. Configure the Network ACL, just on idc1-server1:</h4>
+<p>[root@idc1-server1 ~]# gluster volume set datavolume1 auth.allow 10.1.1.<em>,10.1.2.</em></p>
+<h4>6. Tests on idc1-client15, install the version '-3.4.0.57rhs-1.el6_5' which supports option: 'backup-volfile-servers'</h4>
+<p>[root@idc1-client15 ~]# yum install -y glusterfs-3.4.0.57rhs-1.el6_5 glusterfs-libs-3.4.0.57rhs-1.el6_5 glusterfs-fuse-3.4.0.57rhs-1.el6_5</p>
+<p>[root@idc1-client15 ~]# mkdir -p /mnt/{datavolume1,datavolume2,datavolume3}</p>
+<p>[root@idc1-client15 ~]# chown -R root:root /mnt/{datavolume1,datavolume2,datavolume3}</p>
+<p>[root@idc1-client15 ~]# mount -t glusterfs -o backup-volfile-servers=idc1-server2:idc1-server3:idc1-server4,ro idc1-server1:datavolume1 /mnt/datavolume1/</p>
+<p>[root@idc1-client15 ~]# mount -t glusterfs -o backup-volfile-servers=idc1-server2:idc1-server3:idc1-server4,ro idc1-server1:datavolume2 /mnt/datavolume2/</p>
+<p>[root@idc1-client15 ~]# mount -t glusterfs -o backup-volfile-servers=idc1-server2:idc1-server3:idc1-server4,ro idc1-server1:datavolume3 /mnt/datavolume3/</p>
+<p>[root@idc1-client15 ~]# df -h</p>
+<div class="highlight"><pre><span class="n">Filesystem</span>            <span class="n">Size</span>  <span class="n">Used</span> <span class="n">Avail</span> <span class="n">Use</span><span class="o">%</span> <span class="n">Mounted</span> <span class="n">on</span>
+<span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">mapper</span><span class="o">/</span><span class="kt">vg_t</span><span class="o">-</span><span class="n">lv_root</span>
+                       <span class="mi">59</span><span class="n">G</span>  <span class="mf">7.7</span><span class="n">G</span>   <span class="mi">48</span><span class="n">G</span>  <span class="mi">14</span><span class="o">%</span> <span class="o">/</span>
+<span class="n">tmpfs</span>                 <span class="mf">3.9</span><span class="n">G</span>     <span class="mi">0</span>  <span class="mf">3.9</span><span class="n">G</span>   <span class="mi">0</span><span class="o">%</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">shm</span>
+<span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">xvda1</span>            <span class="mi">485</span><span class="n">M</span>   <span class="mi">33</span><span class="n">M</span>  <span class="mi">428</span><span class="n">M</span>   <span class="mi">8</span><span class="o">%</span> <span class="o">/</span><span class="n">boot</span>
+<span class="n">idc1</span><span class="o">-</span><span class="n">server3</span><span class="o">:</span><span class="n">datavolume1</span>     <span class="mi">98</span><span class="n">G</span>  <span class="mf">8.6</span><span class="n">G</span>   <span class="mi">85</span><span class="n">G</span>  <span class="mi">10</span><span class="o">%</span> <span class="o">/</span><span class="n">mnt</span><span class="o">/</span><span class="n">datavolume1</span>
+<span class="n">idc1</span><span class="o">-</span><span class="n">server3</span><span class="o">:</span><span class="n">datavolume2</span>     <span class="mi">98</span><span class="n">G</span>  <span class="mf">8.6</span><span class="n">G</span>   <span class="mi">85</span><span class="n">G</span>  <span class="mi">10</span><span class="o">%</span> <span class="o">/</span><span class="n">mnt</span><span class="o">/</span><span class="n">datavolume2</span>
+<span class="n">idc1</span><span class="o">-</span><span class="n">server3</span><span class="o">:</span><span class="n">datavolume3</span>     <span class="mi">98</span><span class="n">G</span>  <span class="mf">8.6</span><span class="n">G</span>   <span class="mi">85</span><span class="n">G</span>  <span class="mi">10</span><span class="o">%</span> <span class="o">/</span><span class="n">mnt</span><span class="o">/</span><span class="n">datavolume3</span>
+</pre></div>
+
+
+<p><strong>Tests:</strong></p>
+<p>Write on idc1-client15 mount point /mnt/datavolume1:</p>
+<p>[root@idc1-client15 ~]# umount /mnt/datavolume1</p>
+<p>[root@idc1-client15 ~]# mount -t glusterfs idc1-server3:datavolume1 /mnt/datavolume1/</p>
+<p>[root@idc1-client15 ~]# echo "This is idc1-client15" &gt; /mnt/datavolume1/hello.txt</p>
+<p>[root@idc1-client15 ~]# mkdir /mnt/testdir</p>
+<p>[root@idc1-server1 ~]# ls /usr/local/share/datavolume1/</p>
+<div class="highlight"><pre><span class="n">hello</span><span class="p">.</span><span class="n">txt</span> <span class="n">testdir</span>
+</pre></div>
+
+
+<p>Saw hello.txt and testdir</p>
+<p>Write on idc1-server1 volumes dir /usr/local/share/datavolume1:</p>
+<p>[root@idc1-server1 ~]# echo "This is idc1-server1" &gt; /usr/local/share/datavolume1/hello.2.txt</p>
+<p>[root@idc1-server1 ~]# mkdir /usr/local/share/datavolume1/test2</p>
+<p>[idc1-client15][root@idc1-client15 ~]# ls /mnt/datavolume1</p>
+<p>[idc1-client15][root@idc1-client15 datavolume1]# ls -l /mnt/datavolume1</p>
+<div class="highlight"><pre><span class="n">hello</span><span class="p">.</span><span class="n">txt</span> <span class="n">testdir</span>
+</pre></div>
+
+
+<p>Didn't see hello.2.txt and test2</p>
+<p>Write on idc1-server1 mount point /mnt/datavolume1:</p>
+<p>[root@idc1-server1 ~]# mount -t glusterfs idc1-server1:datavolume1 /mnt/datavolume1/</p>
+<p>[root@idc1-server1 ~]# echo "This is idc1-server1" &gt; /mnt/datavolume1/hello.3.txt</p>
+<p>[root@idc1-server1 ~]# mkdir /mnt/datavolume1/test3</p>
+<p>[idc1-client15][root@idc1-client15 datavolume1]# ls /mnt/datavolume1</p>
+<div class="highlight"><pre><span class="n">hello</span><span class="mf">.2</span><span class="p">.</span><span class="n">txt</span>  <span class="n">hello</span><span class="mf">.3</span><span class="p">.</span><span class="n">txt</span> <span class="n">hello</span><span class="p">.</span><span class="n">txt</span>  <span class="n">test2</span>  <span class="n">test3</span>  <span class="n">testdir</span>
+</pre></div>
+
+
+<p>Saw hello.3.txt and test3, and the hello.2.txt and test2 also.</p>
+<p>So I guess if we just write or delete file outside the mount point, it doesn't notify other nodes, so the changes didn't take effect.
+We should mount it on all servers which we want to write or delete files.</p>
+<p><strong>Other Notes:</strong></p>
+<p>Delete:</p>
+<p># gluster volume stop datavolume1</p>
+<p># gluster volume delete datavolume1</p>
+<p>Move:</p>
+<p># gluster peer detach idc1-server4</p>
+<p>ACL:</p>
+<p># gluster volume set datavolume1 auth.allow 10.1.1.<em>,10.1.2.</em></p>
+<p>Add:</p>
+<p># gluster peer probe idc1-server5</p>
+<p># gluster peer probe idc1-server6</p>
+<p># gluster volume add-brick datavolume1 idc1-server5:/usr/local/share/datavolume1 idc1-server6:/usr/local/share/datavolume1</p>
+<p>Shrink and migration:</p>
+<p># gluster volume remove-brick datavolume1 idc1-server1:/usr/local/share/datavolume1 idc1-server5:/usr/local/share/datavolume1 start</p>
+<p># gluster volume remove-brick datavolume1 idc1-server1:/usr/local/share/datavolume1 idc1-server5:/usr/local/share/datavolume1 status</p>
+<p># gluster volume remove-brick datavolume1 idc1-server1:/usr/local/share/datavolume1 idc1-server5:/usr/local/share/datavolume1 commit</p>
+<p>Rebalance:</p>
+<p># gluster volume rebalance datavolume1 start</p>
+<p># gluster volume rebalance datavolume1 status</p>
+<p># gluster volume rebalance datavolume1 stop</p>
+<p>If idc1-server1 dead:</p>
+<p># gluster volume replace-brick datavolume1 idc1-server1:/usr/local/share/datavolume1 idc1-server5:/usr/local/share/datavolume1 commit -force</p>
+<p># gluster volume heal datavolume1 full</p>
+<p class="subheader">Category: <a href="http://mcsrainbow.github.io/category/linuxunix.html">Linux&Unix</a>
+
+    Tagged: 
+    <a href="http://mcsrainbow.github.io/tag/glusterfs.html">GlusterFS </a>
+    <a href="http://mcsrainbow.github.io/tag/distributed.html">Distributed </a>
+</p>
+
+
+
+
+	<h4>Comments</h4>
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'mcsrainbow'
+        var disqus_identifier = "articles/setup-glusterfs-with-distributed-replicated-volumes-and-native-client.html";
+        var disqus_url = "http://mcsrainbow.github.io/articles/setup-glusterfs-with-distributed-replicated-volumes-and-native-client.html";
+
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</article>
+    </div>
+    <!-- End Main Content -->
+
+    <!-- Sidebar -->
+    <aside class="large-3 columns">
+        <h5 class="sidebar-title">Site</h5>
+        <ul class="side-nav">
+            <li><a href="http://mcsrainbow.github.io/archives.html">Archives</a>
+            <li><a href="http://mcsrainbow.github.io/tags.html">Tags</a>
+        </ul>
+
+		
+        <h5 class="sidebar-title">Categories</h5>
+        <ul class="side-nav">
+            <li><a href="http://mcsrainbow.github.io/category/linuxunix.html">Linux&Unix</a></li>
+            <li><a href="http://mcsrainbow.github.io/category/uncategorized.html">Uncategorized</a></li>
+   
+        </ul>
+
+        <h5 class="sidebar-title">Links</h5>
+        <ul class="side-nav">
+            <li><a href="http://heylinux.com">HeyLinux</a></li>
+        </ul>
+		
+        <h5 class="sidebar-title">Social</h5>
+        <ul class="side-nav">
+            <li><a href="http://github.com/mcsrainbow/heydevops">Github</a></li>
+            <li><a href="http://twitter.com/heydevops">Twitter</a></li>
+        </ul>
+
+    </aside> <!-- End Sidebar -->
+
+</div> <!-- End Main Content and Sidebar -->
+
+
+<!-- Footer -->
+<footer class="row">
+    <div class="large-12 columns">
+        <hr />
+        <div class="row">
+            <div class="large-6 columns">
+                    <p><a href="https://github.com/getpelican/pelican-themes/tree/master/zurb-F5-basic">ZurbFoundation5</a> Theme | Powered by <a href="http://docs.getpelican.com/">Pelican</a><p>
+            </div>
+            </div>
+    </div>
+</footer>
+<a href="https://github.com/mcsrainbow/heydevops">
+<img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub" />
+</a>
+</body>
+</html>

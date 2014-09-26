@@ -1,5 +1,223 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>HeyDevOps</title><link href="http://mcsrainbow.github.io/" rel="alternate"></link><link href="http://mcsrainbow.github.io/feeds/all.atom.xml" rel="self"></link><id>http://mcsrainbow.github.io/</id><updated>2014-09-25T18:18:00+08:00</updated><entry><title>Setup a new MySQL Service on Port 3307 without touching existing database</title><link href="http://mcsrainbow.github.io/articles/setup-a-new-mysql-service-on-port-3307-without-touching-existing-database.html" rel="alternate"></link><updated>2014-09-25T18:18:00+08:00</updated><author><name>mcsrainbow</name></author><id>tag:mcsrainbow.github.io,2014-09-25:articles/setup-a-new-mysql-service-on-port-3307-without-touching-existing-database.html</id><summary type="html">&lt;p&gt;&lt;strong&gt;1. Create directories for MySQL_3307&lt;/strong&gt;&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>HeyDevOps</title><link href="http://mcsrainbow.github.io/" rel="alternate"></link><link href="http://mcsrainbow.github.io/feeds/all.atom.xml" rel="self"></link><id>http://mcsrainbow.github.io/</id><updated>2014-09-26T15:39:00+08:00</updated><entry><title>Setup GlusterFS with Distributed Replicated Volumes and Native client</title><link href="http://mcsrainbow.github.io/articles/setup-glusterfs-with-distributed-replicated-volumes-and-native-client.html" rel="alternate"></link><updated>2014-09-26T15:39:00+08:00</updated><author><name>mcsrainbow</name></author><id>tag:mcsrainbow.github.io,2014-09-26:articles/setup-glusterfs-with-distributed-replicated-volumes-and-native-client.html</id><summary type="html">&lt;p&gt;OS: CentOS 6.4 x86_64 Minimal&lt;/p&gt;
+&lt;h4&gt;1. Install packages, on idc1-server{1-4}:&lt;/h4&gt;
+&lt;p&gt;# wget -P /etc/yum.repos.d http://download.gluster.org/pub/gluster/glusterfs/LATEST/CentOS/glusterfs-epel.repo&lt;/p&gt;
+&lt;p&gt;# yum install -y glusterfs glusterfs-server glusterfs-fuse&lt;/p&gt;
+&lt;p&gt;# /etc/init.d/glusterd start&lt;/p&gt;
+&lt;p&gt;# chkconfig glusterd on&lt;/p&gt;
+&lt;h4&gt;2. Configure peers, just on idc1-server1:&lt;/h4&gt;
+&lt;p&gt;[root@idc1-server1 ~]# gluster peer probe idc1-server2&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;peer&lt;/span&gt; &lt;span class="n"&gt;probe&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;success&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;[root@idc1-server1 ~]# gluster peer probe idc1-server3&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;peer&lt;/span&gt; &lt;span class="n"&gt;probe&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;success&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;[root@idc1-server1 ~]# gluster peer probe idc1-server4&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;peer&lt;/span&gt; &lt;span class="n"&gt;probe&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;success&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;strong&gt;NOTE:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;The following step is very important with the version 3.4.3!&lt;/p&gt;
+&lt;p&gt;If configured all peers with hostname on one host, must remember to recreate the peer of this host on another host.&lt;/p&gt;
+&lt;p&gt;Otherwise all other hosts cannot recognize this host by hostname.
+10.1.1.35 is the ip address of idc1-server1, detach it then probe with hostname.&lt;/p&gt;
+&lt;p&gt;Just on idc1-server2:&lt;/p&gt;
+&lt;p&gt;[root@idc1-server2 ~]# gluster peer detach 10.1.1.35&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;peer&lt;/span&gt; &lt;span class="n"&gt;detach&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;success&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;[root@idc1-server2 ~]# gluster peer probe idc1-server1&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;peer&lt;/span&gt; &lt;span class="n"&gt;probe&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;success&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Just on idc1-server2:&lt;/p&gt;
+&lt;p&gt;[root@idc1-server2 ~]# gluster peer status&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Number&lt;/span&gt; &lt;span class="n"&gt;of&lt;/span&gt; &lt;span class="n"&gt;Peers&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;
+
+&lt;span class="nl"&gt;Hostname:&lt;/span&gt; &lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server3&lt;/span&gt;
+&lt;span class="nl"&gt;Uuid:&lt;/span&gt; &lt;span class="mf"&gt;01f&lt;/span&gt;&lt;span class="mi"&gt;25251&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="n"&gt;ee6&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;40&lt;/span&gt;&lt;span class="n"&gt;c7&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;a322&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;af53a034aa5a&lt;/span&gt;
+&lt;span class="nl"&gt;State:&lt;/span&gt; &lt;span class="n"&gt;Peer&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;Cluster&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Connected&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nl"&gt;Hostname:&lt;/span&gt; &lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server4&lt;/span&gt;
+&lt;span class="nl"&gt;Uuid:&lt;/span&gt; &lt;span class="mi"&gt;212295&lt;/span&gt;&lt;span class="n"&gt;a6&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;1f&lt;/span&gt;&lt;span class="mi"&gt;38&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="n"&gt;a1e&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;968&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;577241318ff&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;
+&lt;span class="nl"&gt;State:&lt;/span&gt; &lt;span class="n"&gt;Peer&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;Cluster&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Connected&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="nl"&gt;Hostname:&lt;/span&gt; &lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server1&lt;/span&gt;
+&lt;span class="nl"&gt;Port:&lt;/span&gt; &lt;span class="mi"&gt;24007&lt;/span&gt;
+&lt;span class="nl"&gt;Uuid:&lt;/span&gt; &lt;span class="n"&gt;ed016c4e&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;7159&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;433f&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;88&lt;/span&gt;&lt;span class="n"&gt;a5&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="n"&gt;c3ebd8e36c9&lt;/span&gt;
+&lt;span class="nl"&gt;State:&lt;/span&gt; &lt;span class="n"&gt;Peer&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;Cluster&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Connected&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;3. Create directories, on idc1-server{1-4}:&lt;/h4&gt;
+&lt;p&gt;# mkdir -p /usr/local/share/{datavolume1,datavolume2,datavolume3}&lt;/p&gt;
+&lt;p&gt;# chown -R root:root /mnt/{datavolume1,datavolume2,datavolume3}&lt;/p&gt;
+&lt;p&gt;# ls -l /usr/local/share/&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;total&lt;/span&gt; &lt;span class="mi"&gt;24&lt;/span&gt;
+&lt;span class="n"&gt;drwxr&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;xr&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;  &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="n"&gt;root&lt;/span&gt; &lt;span class="n"&gt;root&lt;/span&gt; &lt;span class="mi"&gt;4096&lt;/span&gt; &lt;span class="n"&gt;Sep&lt;/span&gt; &lt;span class="mi"&gt;23&lt;/span&gt;  &lt;span class="mi"&gt;2011&lt;/span&gt; &lt;span class="n"&gt;applications&lt;/span&gt;
+&lt;span class="n"&gt;drwxr&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;xr&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;   &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="n"&gt;root&lt;/span&gt; &lt;span class="n"&gt;root&lt;/span&gt; &lt;span class="mi"&gt;4096&lt;/span&gt; &lt;span class="n"&gt;Apr&lt;/span&gt;  &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt; &lt;span class="n"&gt;datavolume2&lt;/span&gt;
+&lt;span class="n"&gt;drwxr&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;xr&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;  &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="n"&gt;root&lt;/span&gt; &lt;span class="n"&gt;root&lt;/span&gt; &lt;span class="mi"&gt;4096&lt;/span&gt; &lt;span class="n"&gt;Sep&lt;/span&gt; &lt;span class="mi"&gt;23&lt;/span&gt;  &lt;span class="mi"&gt;2011&lt;/span&gt; &lt;span class="n"&gt;info&lt;/span&gt;
+&lt;span class="n"&gt;drwxr&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;xr&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt; &lt;span class="mi"&gt;21&lt;/span&gt; &lt;span class="n"&gt;root&lt;/span&gt; &lt;span class="n"&gt;root&lt;/span&gt; &lt;span class="mi"&gt;4096&lt;/span&gt; &lt;span class="n"&gt;Feb&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt;  &lt;span class="mi"&gt;2013&lt;/span&gt; &lt;span class="n"&gt;man&lt;/span&gt;
+&lt;span class="n"&gt;drwxr&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;xr&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;   &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="n"&gt;root&lt;/span&gt; &lt;span class="n"&gt;root&lt;/span&gt; &lt;span class="mi"&gt;4096&lt;/span&gt; &lt;span class="n"&gt;Apr&lt;/span&gt;  &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt; &lt;span class="n"&gt;datavolume1&lt;/span&gt;
+&lt;span class="n"&gt;drwxr&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;xr&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;   &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="n"&gt;root&lt;/span&gt; &lt;span class="n"&gt;root&lt;/span&gt; &lt;span class="mi"&gt;4096&lt;/span&gt; &lt;span class="n"&gt;Apr&lt;/span&gt;  &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt; &lt;span class="n"&gt;datavolume3&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;4. Create Distributed Replicated Volumes, just on idc1-server1:&lt;/h4&gt;
+&lt;p&gt;[root@idc1-server1 ~]# gluster volume create datavolume1 replica 2 transport tcp idc1-server1:/usr/local/share/datavolume1 idc1-server2:/usr/local/share/datavolume1 idc1-server3:/usr/local/share/datavolume1 idc1-server4:/usr/local/share/datavolume1 force&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;volume&lt;/span&gt; &lt;span class="n"&gt;create&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;datavolume1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;success&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;please&lt;/span&gt; &lt;span class="n"&gt;start&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;volume&lt;/span&gt; &lt;span class="n"&gt;to&lt;/span&gt; &lt;span class="n"&gt;access&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;[root@idc1-server1 ~]# gluster volume create datavolume2 replica 2 transport tcp idc1-server1:/usr/local/share/datavolume2 idc1-server2:/usr/local/share/datavolume2 idc1-server3:/usr/local/share/datavolume2 idc1-server4:/usr/local/share/datavolume2 force&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;volume&lt;/span&gt; &lt;span class="n"&gt;create&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;datavolume2&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;success&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;please&lt;/span&gt; &lt;span class="n"&gt;start&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;volume&lt;/span&gt; &lt;span class="n"&gt;to&lt;/span&gt; &lt;span class="n"&gt;access&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;[root@idc1-server1 ~]# gluster volume create datavolume3 replica 2 transport tcp idc1-server1:/usr/local/share/datavolume3 idc1-server2:/usr/local/share/datavolume3 idc1-server3:/usr/local/share/datavolume3 idc1-server4:/usr/local/share/datavolume3 force&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;volume&lt;/span&gt; &lt;span class="n"&gt;create&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;datavolume3&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;success&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;please&lt;/span&gt; &lt;span class="n"&gt;start&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;volume&lt;/span&gt; &lt;span class="n"&gt;to&lt;/span&gt; &lt;span class="n"&gt;access&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;[root@idc1-server1 ~]# gluster volume start datavolume1&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;volume&lt;/span&gt; &lt;span class="n"&gt;start&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;datavolume1&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;success&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;[root@idc1-server1 ~]# gluster volume start datavolume2&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;volume&lt;/span&gt; &lt;span class="n"&gt;start&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;datavolume2&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;success&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;[root@idc1-server1 ~]# gluster volume start datavolume3&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;volume&lt;/span&gt; &lt;span class="n"&gt;start&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;datavolume3&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;success&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;[root@idc1-server1 ~]# gluster volume info&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Volume&lt;/span&gt; &lt;span class="n"&gt;Name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;datavolume1&lt;/span&gt;
+&lt;span class="nl"&gt;Type:&lt;/span&gt; &lt;span class="n"&gt;Distributed&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;Replicate&lt;/span&gt;
+&lt;span class="n"&gt;Volume&lt;/span&gt; &lt;span class="n"&gt;ID&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;aea76c2a&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;b754&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;4037&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;9634&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;c2062e2955c3&lt;/span&gt;
+&lt;span class="nl"&gt;Status:&lt;/span&gt; &lt;span class="n"&gt;Started&lt;/span&gt;
+&lt;span class="n"&gt;Number&lt;/span&gt; &lt;span class="n"&gt;of&lt;/span&gt; &lt;span class="n"&gt;Bricks&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;
+&lt;span class="n"&gt;Transport&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;tcp&lt;/span&gt;
+&lt;span class="nl"&gt;Bricks:&lt;/span&gt;
+&lt;span class="nl"&gt;Brick1:&lt;/span&gt; &lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server1&lt;/span&gt;&lt;span class="o"&gt;:/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;local&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;share&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;datavolume1&lt;/span&gt;
+&lt;span class="nl"&gt;Brick2:&lt;/span&gt; &lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server2&lt;/span&gt;&lt;span class="o"&gt;:/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;local&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;share&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;datavolume1&lt;/span&gt;
+&lt;span class="nl"&gt;Brick3:&lt;/span&gt; &lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server3&lt;/span&gt;&lt;span class="o"&gt;:/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;local&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;share&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;datavolume1&lt;/span&gt;
+&lt;span class="nl"&gt;Brick4:&lt;/span&gt; &lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server4&lt;/span&gt;&lt;span class="o"&gt;:/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;local&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;share&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;datavolume1&lt;/span&gt;
+
+&lt;span class="n"&gt;Volume&lt;/span&gt; &lt;span class="n"&gt;Name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;datavolume2&lt;/span&gt;
+&lt;span class="nl"&gt;Type:&lt;/span&gt; &lt;span class="n"&gt;Distributed&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;Replicate&lt;/span&gt;
+&lt;span class="n"&gt;Volume&lt;/span&gt; &lt;span class="n"&gt;ID&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="n"&gt;ed65c6e&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;ee23&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;475&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;82&lt;/span&gt;&lt;span class="n"&gt;c7&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;2967e2&lt;/span&gt;&lt;span class="n"&gt;fc2569&lt;/span&gt;
+&lt;span class="nl"&gt;Status:&lt;/span&gt; &lt;span class="n"&gt;Started&lt;/span&gt;
+&lt;span class="n"&gt;Number&lt;/span&gt; &lt;span class="n"&gt;of&lt;/span&gt; &lt;span class="n"&gt;Bricks&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;
+&lt;span class="n"&gt;Transport&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;tcp&lt;/span&gt;
+&lt;span class="nl"&gt;Bricks:&lt;/span&gt;
+&lt;span class="nl"&gt;Brick1:&lt;/span&gt; &lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server1&lt;/span&gt;&lt;span class="o"&gt;:/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;local&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;share&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;datavolume2&lt;/span&gt;
+&lt;span class="nl"&gt;Brick2:&lt;/span&gt; &lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server2&lt;/span&gt;&lt;span class="o"&gt;:/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;local&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;share&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;datavolume2&lt;/span&gt;
+&lt;span class="nl"&gt;Brick3:&lt;/span&gt; &lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server3&lt;/span&gt;&lt;span class="o"&gt;:/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;local&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;share&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;datavolume2&lt;/span&gt;
+&lt;span class="nl"&gt;Brick4:&lt;/span&gt; &lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server4&lt;/span&gt;&lt;span class="o"&gt;:/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;local&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;share&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;datavolume2&lt;/span&gt;
+
+&lt;span class="n"&gt;Volume&lt;/span&gt; &lt;span class="n"&gt;Name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;datavolume3&lt;/span&gt;
+&lt;span class="nl"&gt;Type:&lt;/span&gt; &lt;span class="n"&gt;Distributed&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;Replicate&lt;/span&gt;
+&lt;span class="n"&gt;Volume&lt;/span&gt; &lt;span class="n"&gt;ID&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;b63bb4ea&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;bd37&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="n"&gt;dd6&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="n"&gt;a4c&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mf"&gt;230e6&lt;/span&gt;&lt;span class="n"&gt;d236afa&lt;/span&gt;
+&lt;span class="nl"&gt;Status:&lt;/span&gt; &lt;span class="n"&gt;Started&lt;/span&gt;
+&lt;span class="n"&gt;Number&lt;/span&gt; &lt;span class="n"&gt;of&lt;/span&gt; &lt;span class="n"&gt;Bricks&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;
+&lt;span class="n"&gt;Transport&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;type&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;tcp&lt;/span&gt;
+&lt;span class="nl"&gt;Bricks:&lt;/span&gt;
+&lt;span class="nl"&gt;Brick1:&lt;/span&gt; &lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server1&lt;/span&gt;&lt;span class="o"&gt;:/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;local&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;share&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;datavolume3&lt;/span&gt;
+&lt;span class="nl"&gt;Brick2:&lt;/span&gt; &lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server2&lt;/span&gt;&lt;span class="o"&gt;:/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;local&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;share&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;datavolume3&lt;/span&gt;
+&lt;span class="nl"&gt;Brick3:&lt;/span&gt; &lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server3&lt;/span&gt;&lt;span class="o"&gt;:/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;local&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;share&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;datavolume3&lt;/span&gt;
+&lt;span class="nl"&gt;Brick4:&lt;/span&gt; &lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server4&lt;/span&gt;&lt;span class="o"&gt;:/&lt;/span&gt;&lt;span class="n"&gt;usr&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;local&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;share&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;datavolume3&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h4&gt;5. Configure the Network ACL, just on idc1-server1:&lt;/h4&gt;
+&lt;p&gt;[root@idc1-server1 ~]# gluster volume set datavolume1 auth.allow 10.1.1.&lt;em&gt;,10.1.2.&lt;/em&gt;&lt;/p&gt;
+&lt;h4&gt;6. Tests on idc1-client15, install the version '-3.4.0.57rhs-1.el6_5' which supports option: 'backup-volfile-servers'&lt;/h4&gt;
+&lt;p&gt;[root@idc1-client15 ~]# yum install -y glusterfs-3.4.0.57rhs-1.el6_5 glusterfs-libs-3.4.0.57rhs-1.el6_5 glusterfs-fuse-3.4.0.57rhs-1.el6_5&lt;/p&gt;
+&lt;p&gt;[root@idc1-client15 ~]# mkdir -p /mnt/{datavolume1,datavolume2,datavolume3}&lt;/p&gt;
+&lt;p&gt;[root@idc1-client15 ~]# chown -R root:root /mnt/{datavolume1,datavolume2,datavolume3}&lt;/p&gt;
+&lt;p&gt;[root@idc1-client15 ~]# mount -t glusterfs -o backup-volfile-servers=idc1-server2:idc1-server3:idc1-server4,ro idc1-server1:datavolume1 /mnt/datavolume1/&lt;/p&gt;
+&lt;p&gt;[root@idc1-client15 ~]# mount -t glusterfs -o backup-volfile-servers=idc1-server2:idc1-server3:idc1-server4,ro idc1-server1:datavolume2 /mnt/datavolume2/&lt;/p&gt;
+&lt;p&gt;[root@idc1-client15 ~]# mount -t glusterfs -o backup-volfile-servers=idc1-server2:idc1-server3:idc1-server4,ro idc1-server1:datavolume3 /mnt/datavolume3/&lt;/p&gt;
+&lt;p&gt;[root@idc1-client15 ~]# df -h&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;Filesystem&lt;/span&gt;            &lt;span class="n"&gt;Size&lt;/span&gt;  &lt;span class="n"&gt;Used&lt;/span&gt; &lt;span class="n"&gt;Avail&lt;/span&gt; &lt;span class="n"&gt;Use&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;Mounted&lt;/span&gt; &lt;span class="n"&gt;on&lt;/span&gt;
+&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;dev&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;mapper&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="kt"&gt;vg_t&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;lv_root&lt;/span&gt;
+                       &lt;span class="mi"&gt;59&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt;  &lt;span class="mf"&gt;7.7&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt;   &lt;span class="mi"&gt;48&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt;  &lt;span class="mi"&gt;14&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt;
+&lt;span class="n"&gt;tmpfs&lt;/span&gt;                 &lt;span class="mf"&gt;3.9&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt;     &lt;span class="mi"&gt;0&lt;/span&gt;  &lt;span class="mf"&gt;3.9&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt;   &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;dev&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;shm&lt;/span&gt;
+&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;dev&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;xvda1&lt;/span&gt;            &lt;span class="mi"&gt;485&lt;/span&gt;&lt;span class="n"&gt;M&lt;/span&gt;   &lt;span class="mi"&gt;33&lt;/span&gt;&lt;span class="n"&gt;M&lt;/span&gt;  &lt;span class="mi"&gt;428&lt;/span&gt;&lt;span class="n"&gt;M&lt;/span&gt;   &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;boot&lt;/span&gt;
+&lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server3&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;datavolume1&lt;/span&gt;     &lt;span class="mi"&gt;98&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt;  &lt;span class="mf"&gt;8.6&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt;   &lt;span class="mi"&gt;85&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt;  &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;mnt&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;datavolume1&lt;/span&gt;
+&lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server3&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;datavolume2&lt;/span&gt;     &lt;span class="mi"&gt;98&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt;  &lt;span class="mf"&gt;8.6&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt;   &lt;span class="mi"&gt;85&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt;  &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;mnt&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;datavolume2&lt;/span&gt;
+&lt;span class="n"&gt;idc1&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server3&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;datavolume3&lt;/span&gt;     &lt;span class="mi"&gt;98&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt;  &lt;span class="mf"&gt;8.6&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt;   &lt;span class="mi"&gt;85&lt;/span&gt;&lt;span class="n"&gt;G&lt;/span&gt;  &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;mnt&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;datavolume3&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;strong&gt;Tests:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Write on idc1-client15 mount point /mnt/datavolume1:&lt;/p&gt;
+&lt;p&gt;[root@idc1-client15 ~]# umount /mnt/datavolume1&lt;/p&gt;
+&lt;p&gt;[root@idc1-client15 ~]# mount -t glusterfs idc1-server3:datavolume1 /mnt/datavolume1/&lt;/p&gt;
+&lt;p&gt;[root@idc1-client15 ~]# echo "This is idc1-client15" &amp;gt; /mnt/datavolume1/hello.txt&lt;/p&gt;
+&lt;p&gt;[root@idc1-client15 ~]# mkdir /mnt/testdir&lt;/p&gt;
+&lt;p&gt;[root@idc1-server1 ~]# ls /usr/local/share/datavolume1/&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;hello&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;txt&lt;/span&gt; &lt;span class="n"&gt;testdir&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Saw hello.txt and testdir&lt;/p&gt;
+&lt;p&gt;Write on idc1-server1 volumes dir /usr/local/share/datavolume1:&lt;/p&gt;
+&lt;p&gt;[root@idc1-server1 ~]# echo "This is idc1-server1" &amp;gt; /usr/local/share/datavolume1/hello.2.txt&lt;/p&gt;
+&lt;p&gt;[root@idc1-server1 ~]# mkdir /usr/local/share/datavolume1/test2&lt;/p&gt;
+&lt;p&gt;[idc1-client15][root@idc1-client15 ~]# ls /mnt/datavolume1&lt;/p&gt;
+&lt;p&gt;[idc1-client15][root@idc1-client15 datavolume1]# ls -l /mnt/datavolume1&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;hello&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;txt&lt;/span&gt; &lt;span class="n"&gt;testdir&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Didn't see hello.2.txt and test2&lt;/p&gt;
+&lt;p&gt;Write on idc1-server1 mount point /mnt/datavolume1:&lt;/p&gt;
+&lt;p&gt;[root@idc1-server1 ~]# mount -t glusterfs idc1-server1:datavolume1 /mnt/datavolume1/&lt;/p&gt;
+&lt;p&gt;[root@idc1-server1 ~]# echo "This is idc1-server1" &amp;gt; /mnt/datavolume1/hello.3.txt&lt;/p&gt;
+&lt;p&gt;[root@idc1-server1 ~]# mkdir /mnt/datavolume1/test3&lt;/p&gt;
+&lt;p&gt;[idc1-client15][root@idc1-client15 datavolume1]# ls /mnt/datavolume1&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;hello&lt;/span&gt;&lt;span class="mf"&gt;.2&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;txt&lt;/span&gt;  &lt;span class="n"&gt;hello&lt;/span&gt;&lt;span class="mf"&gt;.3&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;txt&lt;/span&gt; &lt;span class="n"&gt;hello&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;txt&lt;/span&gt;  &lt;span class="n"&gt;test2&lt;/span&gt;  &lt;span class="n"&gt;test3&lt;/span&gt;  &lt;span class="n"&gt;testdir&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Saw hello.3.txt and test3, and the hello.2.txt and test2 also.&lt;/p&gt;
+&lt;p&gt;So I guess if we just write or delete file outside the mount point, it doesn't notify other nodes, so the changes didn't take effect.
+We should mount it on all servers which we want to write or delete files.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Other Notes:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Delete:&lt;/p&gt;
+&lt;p&gt;# gluster volume stop datavolume1&lt;/p&gt;
+&lt;p&gt;# gluster volume delete datavolume1&lt;/p&gt;
+&lt;p&gt;Move:&lt;/p&gt;
+&lt;p&gt;# gluster peer detach idc1-server4&lt;/p&gt;
+&lt;p&gt;ACL:&lt;/p&gt;
+&lt;p&gt;# gluster volume set datavolume1 auth.allow 10.1.1.&lt;em&gt;,10.1.2.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;Add:&lt;/p&gt;
+&lt;p&gt;# gluster peer probe idc1-server5&lt;/p&gt;
+&lt;p&gt;# gluster peer probe idc1-server6&lt;/p&gt;
+&lt;p&gt;# gluster volume add-brick datavolume1 idc1-server5:/usr/local/share/datavolume1 idc1-server6:/usr/local/share/datavolume1&lt;/p&gt;
+&lt;p&gt;Shrink and migration:&lt;/p&gt;
+&lt;p&gt;# gluster volume remove-brick datavolume1 idc1-server1:/usr/local/share/datavolume1 idc1-server5:/usr/local/share/datavolume1 start&lt;/p&gt;
+&lt;p&gt;# gluster volume remove-brick datavolume1 idc1-server1:/usr/local/share/datavolume1 idc1-server5:/usr/local/share/datavolume1 status&lt;/p&gt;
+&lt;p&gt;# gluster volume remove-brick datavolume1 idc1-server1:/usr/local/share/datavolume1 idc1-server5:/usr/local/share/datavolume1 commit&lt;/p&gt;
+&lt;p&gt;Rebalance:&lt;/p&gt;
+&lt;p&gt;# gluster volume rebalance datavolume1 start&lt;/p&gt;
+&lt;p&gt;# gluster volume rebalance datavolume1 status&lt;/p&gt;
+&lt;p&gt;# gluster volume rebalance datavolume1 stop&lt;/p&gt;
+&lt;p&gt;If idc1-server1 dead:&lt;/p&gt;
+&lt;p&gt;# gluster volume replace-brick datavolume1 idc1-server1:/usr/local/share/datavolume1 idc1-server5:/usr/local/share/datavolume1 commit -force&lt;/p&gt;
+&lt;p&gt;# gluster volume heal datavolume1 full&lt;/p&gt;</summary><category term="GlusterFS"></category><category term="Distributed"></category></entry><entry><title>Setup a new MySQL Service on Port 3307 without touching existing database</title><link href="http://mcsrainbow.github.io/articles/setup-a-new-mysql-service-on-port-3307-without-touching-existing-database.html" rel="alternate"></link><updated>2014-09-25T18:18:00+08:00</updated><author><name>mcsrainbow</name></author><id>tag:mcsrainbow.github.io,2014-09-25:articles/setup-a-new-mysql-service-on-port-3307-without-touching-existing-database.html</id><summary type="html">&lt;p&gt;&lt;strong&gt;1. Create directories for MySQL_3307&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;$ sudo mkdir -p /opt/mysql_3307/{data,tmp,run,binlogs,log}&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;$ sudo chown mysql:mysql /opt/mysql_3307/{data,tmp,run,binlogs,log}&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;2. Create configuration file for MySQL_3307&lt;/strong&gt;&lt;/p&gt;
