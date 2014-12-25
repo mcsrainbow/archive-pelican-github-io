@@ -132,11 +132,13 @@
 33
 34
 35
-36</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#!/usr/bin/python</span>
+36
+37
+38
+39
+40</pre></div></td><td class="code"><div class="highlight"><pre><span class="c">#!/usr/bin/python</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">shlex</span>
 <span class="kn">import</span> <span class="nn">commands</span>
 <span class="kn">import</span> <span class="nn">re</span>
 
@@ -150,24 +152,30 @@
             <span class="n">ansible_private_ipv4_address</span> <span class="o">=</span> <span class="n">ipaddr</span>
             <span class="k">return</span> <span class="n">ansible_private_ipv4_address</span>
 
-<span class="n">ansible_facts_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">module</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="n">AnsibleModule</span><span class="p">(</span>
+        <span class="n">argument_spec</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">get_facts</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s">&quot;yes&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">False</span><span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">supports_check_mode</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">ansible_facts_dict</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s">&quot;changed&quot;</span> <span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-        <span class="s">&quot;ansible_facts&quot;</span> <span class="p">:</span> <span class="p">{</span>
+        <span class="s">&quot;ansible_facts&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="p">}</span>
     <span class="p">}</span>
 
-<span class="n">args_file</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-<span class="n">args_data</span> <span class="o">=</span> <span class="nb">file</span><span class="p">(</span><span class="n">args_file</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">module</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s">&#39;get_facts&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;yes&#39;</span><span class="p">:</span>
+        <span class="n">ansible_private_ipv4_address</span> <span class="o">=</span> <span class="n">get_ansible_private_ipv4_address</span><span class="p">()</span>
+        <span class="n">ansible_facts_dict</span><span class="p">[</span><span class="s">&#39;ansible_facts&#39;</span><span class="p">][</span><span class="s">&#39;ansible_private_ipv4_address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ansible_private_ipv4_address</span>
 
-<span class="n">arguments</span> <span class="o">=</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">args_data</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">arguments</span><span class="p">:</span>
-    <span class="k">if</span> <span class="s">&quot;=&quot;</span> <span class="ow">in</span> <span class="n">arg</span><span class="p">:</span>
-        <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s">&quot;get_facts&quot;</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">==</span> <span class="s">&quot;yes&quot;</span><span class="p">:</span>
-            <span class="n">ansible_private_ipv4_address</span> <span class="o">=</span> <span class="n">get_ansible_private_ipv4_address</span><span class="p">()</span>
-            <span class="n">ansible_facts_dict</span><span class="p">[</span><span class="s">&#39;ansible_facts&#39;</span><span class="p">][</span><span class="s">&#39;ansible_private_ipv4_address&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ansible_private_ipv4_address</span>
+    <span class="k">print</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">ansible_facts_dict</span><span class="p">)</span>
 
-<span class="k">print</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">ansible_facts_dict</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">ansible.module_utils.basic</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">ansible.module_utils.facts</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">main</span><span class="p">()</span>
 </pre></div>
 </td></tr></table>
 
